@@ -1,0 +1,2 @@
+function storeFile(file,data) {
+}
