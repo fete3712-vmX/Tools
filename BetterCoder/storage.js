@@ -1,2 +1,0 @@
-function storeFile(file,data) {
-}
