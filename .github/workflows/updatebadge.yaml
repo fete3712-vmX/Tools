@@ -1,0 +1,41 @@
+name: Update Days Badge
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Every day at 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate badge
+        run: |
+          RELEASE_DATE="2026-07-01" # CHANGE THIS
+
+          DAYS=$(( ($(date +%s) - $(date -d "$RELEASE_DATE" +%s)) / 86400 ))
+
+          mkdir -p docs
+
+          cat > docs/badge.json <<EOF
+          {
+            "schemaVersion": 1,
+            "label": "days since release",
+            "message": "$DAYS",
+            "color": "brightgreen"
+          }
+          EOF
+
+      - name: Commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add docs/badge.json
+          git diff --cached --quiet || git commit -m "Update badge"
+          git push
