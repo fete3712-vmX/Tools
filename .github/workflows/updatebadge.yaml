@@ -17,7 +17,7 @@ jobs:
 
       - name: Generate badge
         run: |
-          RELEASE_DATE="2026-07-01" # CHANGE THIS
+          RELEASE_DATE="2026-07-29"
 
           DAYS=$(( ($(date +%s) - $(date -d "$RELEASE_DATE" +%s)) / 86400 ))
 
