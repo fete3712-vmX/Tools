@@ -1,4 +1,4 @@
-async function getYAML(code,name) {
+function getYAML(code,name) {
 return `
 name: ${name}
 
@@ -23,7 +23,7 @@ jobs:
 }
 
 window.onload(() => {
-document.getElementById("gen").addEventListener("onclick", () => {
+document.getElementById("gen").addEventListener("click", () => {
     document.getElementById("code").value = getYAML(document.getElementById("codeInput").value, document.getElementById("nameInput").value);
 })
 })
