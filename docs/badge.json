@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "label": "days since release",
+  "label": "days since start",
   "message": "1",
   "color": "brightgreen"
 }
