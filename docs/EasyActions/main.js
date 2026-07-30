@@ -16,7 +16,7 @@ jobs:
        runs-on: ubuntu-latest
 
        steps:
-           - name: Generated Using EzActions
+           -name: Generated Using EzActions
            run: ${code}
 
 `;
