@@ -23,7 +23,12 @@ jobs:
 }
 
 window.onload(() => {
-document.getElementById("gen").addEventListener("click", () => {
-    document.getElementById("code").value = getYAML(document.getElementById("codeInput").value, document.getElementById("nameInput").value);
-})
+document.getElementById("gen").addEventListener("click", async () => {
+    alert("Clicked!");
+
+    document.getElementById("code").value = await getYAML(
+        document.getElementById("codeInput").value,
+        document.getElementById("nameInput").value
+    );
+});
 })
