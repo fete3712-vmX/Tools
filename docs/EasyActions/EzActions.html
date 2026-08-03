@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <link href="../style.css" rel="stylesheet">
-    </head>
-    <body>
-        <h2 class="font-inter">Easy Github Actions</h2>
-        <h4 class="font-inter">Name</span>
-        <input id="nameInput"/>
-        <h4 class="font-inter">Code</span>
-        <textarea id="codeInput"></textarea>
-        <h5>Runs on Linux Latest, runs every deployment</span>
-        <span>Code:</span>
-        <button id="gen">Generate YAML</button>
-        <textarea id="code" style="resize: none;"></textarea>
-            <script src="main.js"></script>
-    </body>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
+</head>
+
+<body>
+    <h2 class="font-inter">Easy Github Actions</h2>
+
+    <h4 class="font-inter">Name</h4>
+    <input id="nameInput">
+
+    <h4 class="font-inter">Code</h4>
+    <textarea id="codeInput"></textarea>
+
+    <h5 class="font-inter">Runs on Linux Latest, runs every deployment</h5>
+
+    <span>Code:</span>
+    <button id="gen" type="button">Generate YAML</button>
+
+    <textarea id="code" style="resize:none; width:100%; height:300px;"></textarea>
+
+    <script src="main.js"></script>
+</body>
 </html>
