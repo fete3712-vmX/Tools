@@ -1,34 +1,33 @@
-function getYAML(code,name) {
-return `
+function getYAML(code, name) {
+    return `
 name: ${name}
 
 on:
   push:
-      branches:
-          -main
+    branches:
+      - main
   pull_request:
-      branches: 
-          -main
+    branches:
+      - main
   workflow_dispatch:
 
-jobs: 
-   example:
-       runs-on: ubuntu-latest
+jobs:
+  example:
+    runs-on: ubuntu-latest
 
-       steps:
-           -name: Generated Using EzActions
-           run: ${code}
-
+    steps:
+      - name: Generated Using EzActions
+        run: ${code}
 `;
 }
 
-window.onload(() => {
-document.getElementById("gen").addEventListener("click", async () => {
-    alert("Clicked!");
+window.onload = () => {
+    document.getElementById("gen").addEventListener("click", async () => {
+        alert("Clicked!");
 
-    document.getElementById("code").value = getYAML(
-        document.getElementById("codeInput").value,
-        document.getElementById("nameInput").value
-    );
-});
-})
+        document.getElementById("code").value = getYAML(
+            document.getElementById("codeInput").value,
+            document.getElementById("nameInput").value
+        );
+    });
+};
