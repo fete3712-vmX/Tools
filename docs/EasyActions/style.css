@@ -7,7 +7,7 @@ body {
     background: #0f172a;
     color: white;
     display: flex;
-    min-height: 100vh;
+    min-height: 0vh;
     margin: 0;
 }
 
@@ -49,7 +49,7 @@ textarea:focus {
 
 textarea {
     min-height: 120px;
-    resize: vertical;
+    resize: none;
 }
 
 button {
