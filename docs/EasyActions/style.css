@@ -2,14 +2,6 @@
 .center {left: -50; text-align: center;}
 
 /* AI-gen */
-body {
-    font-family: "Inter", sans-serif;
-    background: #0f172a;
-    color: white;
-    display: flex;
-    min-height: 0vh;
-    margin: 0;
-}
 
 .container {
     background: #1e293b;
