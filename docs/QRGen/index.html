@@ -1,40 +1,76 @@
 <!DOCTYPE html>
-<!-- Code jumbled up sry -->
 <html>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
-                <style>
-                        body {
-                                    background: rgb(27, 27, 27);
-                                            }
-                                                    h2 {
-                                                                color: rgb(122, 122, 122);
-                                                                        }
-                                                                                .silkscreen-regular {
-                                                                                            font-family: "Silkscreen", sans-serif;
-                                                                                                        font-weight: 400;
-                                                                                                                    font-style: normal;
-                                                                                                                            }
-                                                                                                                                    .silkscreen-bold {
-                                                                                                                                                font-family: "Silkscreen", sans-serif;
-                                                                                                                                                            font-weight: 700;
-                                                                                                                                                                        font-style: normal;
-                                                                                                                                                                                }
-                                                                                                                                                                                        #main {
-                                                                                                                                                                                                    border: 5px solid gray;
-                                                                                                                                                                                                                border-radius: 5px;
-                                                                                                                                                                                                                            width: 50vw;
-                                                                                                                                                                                                                                        height: 80vh;
-                                                                                                                                                                                                                                                    background: gray;
-                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                    #text::placeholder {
-                                                                                                                                                                                                                                                                                font-family: "Silkscreen";
-                                                                                                                                                                                                                                                                                            font-size: 2.63vh;
-                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                            #text {
-                                                                                                                                                                                                                                                                                                                        border-radius: 0px;
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            height: 80vh;
+            background: gray;
+        }
+        #text::placeholder {
+            font-family: "Silkscreen";
+            font-size: 2.63vh;
+        }
+        #text {
+            border-radius: 0px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202) !important;
+            -webkit-text-fill-color: rgb(202,202,202) !important;
+            font-family: "Silkscreen";
+        }
+        #qr {
+            width: 30%;
+            transform: translateY(70%);
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Live QR code Generator</h2>
+    </center>
+    <center>
+        <div id="main">
+            <span class="silkscreen-regular">Data:
+                <input id="text" placeholder="Text and URLs work here"/>
+            </span>
+            
+            <span class="silkscreen-bold" id="xdown">Heres the QR code:</span>
+            <img id="qr">
+        </div>
+    </center>
+    <script>
+        const input = document.getElementById("text");
+        const qr = document.getElementById("qr");
+        input.addEventListener("input", () => {
+            qr.src ="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +encodeURIComponent(input.value);
+        })
+    </script>
+</body>
+</html>                                                                                                                                                                                                                                                                                                                        border-radius: 0px;
                                                                                                                                                                                                                                                                                                                                     width: 100%;
                                                                                                                                                                                                                                                                                                                                                 box-sizing: border-box;
                                                                                                                                                                                                                                                                                                                                                             border: 2px solid rgb(0,0,0);
