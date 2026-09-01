@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            height: 80vh;
+            background: gray;
+        }
+
+        audio {
+            width: 100%;
+            transform: translateY(50vh)
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/higuma/ogg-vorbis-encoder-js@master/lib/OggVorbisEncoder.js"></script>
+</head>
+
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Audio Compressorr</h2>
+    </center>
+    <center>
+        <div id="main">
+            <span class="silkscreen-regular">File:
+                <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.wma"/>
+            </span>
+
+            <audio id="player" controls></audio>
+        </div>
+    </center>
+
+    <script>
+        const fileInput = document.getElementById("fileInput");
+        const player = document.getElementById("player");
+
+        fileInput.addEventListener("change", async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const mimeType = (file.type || "").toLowerCase();
+            const fileName = file.name.toLowerCase();
+
+            // 1. REJECT OGG (Checks both MIME type and file extension)
+            const isOggMime = mimeType === "audio/ogg" || 
+                              mimeType === "application/ogg" || 
+                              mimeType === "audio/vorbis" ||
+                              mimeType.includes("ogg");
+
+            const isOggExt = fileName.endsWith(".ogg") || 
+                             fileName.endsWith(".oga") || 
+                             fileName.endsWith(".ogv") || 
+                             fileName.endsWith(".ogx");
+
+            if (isOggMime || isOggExt) {
+                alert("Error: OGG files are not allowed!");
+                fileInput.value = "";
+                return;
+            }
+
+            // 2. CHECK IF VALID AUDIO (MIME type or extension fallback)
+            const isAudioMime = mimeType.startsWith("audio/");
+            const isAudioExt = /\.(mp3|wav|flac|aac|m4a|wma|aiff)$/i.test(fileName);
+
+            if (!isAudioMime && !isAudioExt) {
+                alert("Error: Please select a valid audio file (MP3, WAV, FLAC, etc.)!");
+                fileInput.value = "";
+                return;
+            }
+
+            try {
+                // 3. Decode input file
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                // 4. Encode to Ogg Vorbis
+                const encoder = new OggVorbisEncoder(
+                    audioBuffer.sampleRate, 
+                    audioBuffer.numberOfChannels, 
+                    0.5
+                );
+
+                const channels = [];
+                for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                    channels.push(audioBuffer.getChannelData(i));
+                }
+                encoder.encode(channels);
+
+                // 5. Finish and download
+                const oggBlob = encoder.finish("audio/ogg");
+                const oggUrl = URL.createObjectURL(oggBlob);
+
+                player.src = oggUrl;
+
+                const a = document.createElement("a");
+                a.href = oggUrl;
+                a.download = file.name.replace(/\.[^/.]+$/, "") + ".ogg";
+                a.click();
+            } catch (err) {
+                alert("Failed to decode audio file.");
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+
+</html>
