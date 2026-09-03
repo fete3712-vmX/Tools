@@ -1,6 +1,8 @@
 function getYAML(code, name) {
     return `
 name: ${name}
+author: xTymezz
+description: Created using EasyActions 
 
 on:
   push:
@@ -17,7 +19,8 @@ jobs:
 
     steps:
       - name: Generated Using EzActions
-        run: ${code}
+        run: |
+            ${code}
 `;
 }
 
