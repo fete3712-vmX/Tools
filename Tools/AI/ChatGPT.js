@@ -5,7 +5,7 @@ export async function ChatGPT(model, key, text) {
         method: "POST",
         headers: JSON.stringify({
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
+            "Authorization": `Bearer ${key}`
         }),
         body: JSON.stringify({
             model: "gpt-4o-mini",
