@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<!-- AI was used to remake, because old one couldnt be recovered -->
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CORS Playground</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&amp;display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: rgb(27, 27, 27);
+            margin: 0;
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+            font-family: "Silkscreen", sans-serif;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            height: 80vh;
+            background: gray;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            font-family: "Silkscreen", sans-serif;
+            border: 3px solid rgb(27, 27, 27);
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #top {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        #proxy {
+            width: 150px;
+        }
+
+        #text-apikey {
+            width: 20%;
+        }
+
+        #url {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #method {
+            width: 120px;
+        }
+
+        #body {
+            width: 100%;
+            height: 120px;
+            min-height: 120px;
+            margin-top: 10px;
+            resize: none;
+            flex-shrink: 0;
+        }
+
+        #send {
+            width: fit-content;
+            margin-top: 10px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        #response {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            margin-top: 10px;
+            resize: none;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>CORS Playground</h2>
+
+    <div id="main">
+
+        <div id="top">
+
+            <select id="proxy">
+                <option value="direct">Direct</option>
+
+                <option value="allorigins">
+                    AllOrigins
+                </option>
+
+                <option value="corsproxy">
+                    CORSProxy.io 🔑
+                </option>
+
+                <option value="corssh">
+                    CORS.SH 🔑
+                </option>
+
+                <option value="corsbridge">
+                    CorsBridge
+                </option>
+
+                <option value="corsproxyorg">
+                    CORS Proxy
+                </option>
+
+                <option value="codetabs" disabled>
+                    CodeTabs CORS Proxy (DOWN)
+                </option>
+            </select>
+
+            <input
+                id="text-apikey"
+                type="text"
+                placeholder="API Key"
+                disabled
+            >
+
+            <input
+                id="url"
+                type="url"
+                placeholder="Request URL"
+            >
+
+            <select id="method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+                <option value="HEAD">HEAD</option>
+                <option value="OPTIONS">OPTIONS</option>
+            </select>
+
+        </div>
+
+        <textarea
+            id="body"
+            placeholder="Request Body"
+        ></textarea>
+
+        <button id="send">SEND</button>
+
+        <textarea
+            id="response"
+            placeholder="Response"
+            readonly
+        ></textarea>
+
+    </div>
+
+    <script>
+        const proxy = document.getElementById("proxy");
+        const keyinput = document.getElementById("text-apikey");
+        const urlinput = document.getElementById("url");
+        const methodinput = document.getElementById("method");
+        const bodyinput = document.getElementById("body");
+        const response = document.getElementById("response");
+        const send = document.getElementById("send");
+
+        proxy.addEventListener("change", () => {
+            if (
+                proxy.value == "corssh" ||
+                proxy.value == "corsproxy"
+            ) {
+                keyinput.disabled = false;
+            } else {
+                keyinput.disabled = true;
+                keyinput.value = "";
+            }
+        });
+
+        send.addEventListener("click", async () => {
+            let url = urlinput.value;
+
+            if (!url) {
+                response.value = "ERROR: Enter a URL.";
+                return;
+            }
+
+            const method = methodinput.value;
+
+            if (proxy.value == "allorigins") {
+                url =
+                    "https://api.allorigins.win/raw?url=" +
+                    encodeURIComponent(url);
+            }
+
+            if (proxy.value == "corsproxy") {
+                url =
+                    "https://corsproxy.io/?" +
+                    encodeURIComponent(url);
+            }
+
+            if (proxy.value == "corssh") {
+                url = "https://cors.sh/" + url;
+            }
+
+            if (proxy.value == "corsbridge") {
+                url =
+                    "https://api.cors.syrins.tech/?url=" +
+                    encodeURIComponent(url);
+            }
+
+            if (proxy.value == "corsproxyorg") {
+                url =
+                    "https://corsproxy.org/?" +
+                    encodeURIComponent(url);
+            }
+
+            response.value = "Loading...";
+
+            try {
+                const options = {
+                    method: method
+                };
+
+                if (
+                    method != "GET" &&
+                    method != "HEAD" &&
+                    bodyinput.value
+                ) {
+                    options.body = bodyinput.value;
+
+                    options.headers = {
+                        "Content-Type": "application/json"
+                    };
+                }
+
+                if (
+                    proxy.value == "corsproxy" &&
+                    keyinput.value
+                ) {
+                    options.headers = options.headers || {};
+
+                    options.headers["x-api-key"] =
+                        keyinput.value;
+                }
+
+                if (
+                    proxy.value == "corssh" &&
+                    keyinput.value
+                ) {
+                    options.headers = options.headers || {};
+
+                    options.headers["x-cors-api-key"] =
+                        keyinput.value;
+                }
+
+                const result = await fetch(url, options);
+                const text = await result.text();
+
+                response.value =
+                    "Status: " +
+                    result.status +
+                    " " +
+                    result.statusText +
+                    "\n\n" +
+                    text;
+
+            } catch (error) {
+                response.value =
+                    "ERROR:\n\n" +
+                    error;
+            }
+        });
+    </script>
+
+</body>
+</html>
