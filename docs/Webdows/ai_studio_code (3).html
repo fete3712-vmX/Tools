@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 10 Pro (24H2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&family=Consolas&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #0078d4;
+            --taskbar-bg: rgba(16, 16, 16, 0.85);
+            --win-bg: #202020;
+            --win-sidebar: #191919;
+            --win-card: rgba(255, 255, 255, 0.04);
+            --win-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f3f3;
+            --text-muted: #888888;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+            background: url("https://4kwallpapers.com/images/wallpapers/windows-10-dark-blue-5k-8k-8000x4500-733.jpg") center/cover no-repeat;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* --- Desktop Surface --- */
+        #desktop {
+            position: absolute;
+            inset: 0 0 40px 0;
+            padding: 12px;
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(auto-fill, 86px);
+            grid-auto-columns: 74px;
+            gap: 6px;
+            z-index: 1;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 74px;
+            height: 86px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            cursor: pointer;
+            text-align: center;
+            color: #fff;
+            padding: 4px;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .desktop-icon.selected {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .desktop-icon img {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 4px;
+            pointer-events: none;
+        }
+
+        .desktop-icon span {
+            font-size: 11px;
+            text-shadow: 0 1px 2px #000;
+            line-height: 1.2;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* --- Taskbar --- */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 40px;
+            background: var(--taskbar-bg);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            z-index: 99999;
+            border-top: 1px solid var(--win-border);
+        }
+
+        .tb-btn {
+            width: 44px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tb-btn:hover { background: rgba(255, 255, 255, 0.08); }
+        .tb-btn.active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .tb-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .tb-btn img, .tb-btn svg {
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+        }
+
+        #tb-search {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            height: 100%;
+            padding: 0 12px;
+            gap: 8px;
+            width: 220px;
+            border-right: 1px solid var(--win-border);
+        }
+
+        #tb-search input {
+            background: none;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        #tray {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        #clock-widget {
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: right;
+            color: #fff;
+            font-size: 11px;
+            line-height: 1.25;
+            cursor: pointer;
+        }
+
+        #clock-widget:hover { background: rgba(255, 255, 255, 0.08); }
+
+        /* --- Start Menu --- */
+        #start-menu {
+            position: fixed;
+            bottom: 40px;
+            left: 0;
+            width: 320px;
+            height: 480px;
+            background: rgba(25, 25, 25, 0.96);
+            backdrop-filter: blur(24px);
+            border: 1px solid #383838;
+            border-bottom: none;
+            display: none;
+            flex-direction: column;
+            z-index: 99998;
+            box-shadow: 0 0 24px rgba(0, 0, 0, 0.8);
+        }
+
+        #start-menu.open { display: flex; }
+        .start-header { padding: 12px 14px 4px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+        .start-list { flex: 1; overflow-y: auto; padding: 6px; }
+        .start-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .start-item:hover { background: rgba(255, 255, 255, 0.08); }
+        .start-item img { width: 20px; height: 20px; }
+
+        /* --- Universal Windows Frame --- */
+        .win10-window {
+            position: absolute;
+            background: var(--win-bg);
+            border: 1px solid #3a3a3a;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.85);
+            z-index: 100;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .win10-window.active { border-color: var(--accent); }
+        .win10-titlebar {
+            height: 32px;
+            background: #141414;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 12px;
+            cursor: move;
+        }
+
+        .win10-controls { display: flex; height: 100%; }
+        .win10-btn {
+            width: 46px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .win10-btn:hover { background: #2f2f2f; }
+        .win10-btn.close:hover { background: #e81123; }
+
+        .win10-body { display: flex; flex: 1; height: calc(100% - 32px); overflow: hidden; }
+
+        /* --- CMD Styling --- */
+        .cmd-terminal {
+            background: #0c0c0c;
+            color: #cccccc;
+            font-family: 'Consolas', monospace;
+            padding: 10px;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+        .cmd-output { white-space: pre-wrap; word-break: break-all; margin-bottom: 4px; line-height: 1.35; }
+        .cmd-input-line { display: flex; align-items: center; gap: 6px; }
+        .cmd-prompt { color: #cccccc; white-space: nowrap; }
+        .cmd-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: inherit;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+            caret-color: #fff;
+        }
+
+        /* --- Explorer Styling --- */
+        .explorer-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; }
+        .explorer-toolbar { background: #262626; border-bottom: 1px solid #333; padding: 6px 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
+        .explorer-toolbar button { background: none; border: 1px solid transparent; color: #fff; padding: 2px 8px; border-radius: 2px; cursor: pointer; }
+        .explorer-toolbar button:hover { background: rgba(255,255,255,0.08); border-color: #444; }
+        .explorer-path { flex: 1; background: #181818; border: 1px solid #383838; color: #ddd; padding: 4px 10px; border-radius: 2px; font-size: 12px; }
+        .explorer-body { display: flex; flex: 1; overflow: hidden; }
+        .explorer-tree { width: 170px; background: #1b1b1b; border-right: 1px solid #282828; padding: 6px; display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+        .tree-node { padding: 5px 8px; border-radius: 2px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #bbb; }
+        .tree-node:hover { background: #262626; color: #fff; }
+        .tree-node.active { background: #303030; color: #fff; }
+        .explorer-files { flex: 1; padding: 14px; background: #1f1f1f; display: grid; grid-template-columns: repeat(auto-fill, 86px); grid-auto-rows: 86px; gap: 8px; overflow-y: auto; align-content: start; }
+        .file-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent; border-radius: 2px; cursor: pointer; padding: 4px; font-size: 11px; }
+        .file-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+        .file-item.selected { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+        .file-item img { width: 34px; height: 34px; margin-bottom: 4px; }
+
+        /* --- Microsoft Store Styling --- */
+        .store-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; background: #171717; }
+        .store-nav { height: 44px; border-bottom: 1px solid var(--win-border); display: flex; align-items: center; padding: 0 16px; gap: 16px; font-size: 13px; font-weight: 500; }
+        .store-grid { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; align-content: start; }
+        .store-card { background: #202020; border: 1px solid #303030; border-radius: 4px; padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: 0.15s; }
+        .store-card:hover { border-color: #505050; transform: translateY(-2px); }
+        .store-card-top { display: flex; gap: 12px; align-items: center; }
+        .store-card-top img { width: 44px; height: 44px; }
+        .store-card-title { font-size: 13px; font-weight: 600; }
+        .store-card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+        .store-btn { align-self: flex-start; margin-top: auto; background: var(--accent); color: #fff; border: none; padding: 6px 16px; border-radius: 3px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .store-btn:hover { filter: brightness(1.15); }
+        .store-btn.installed { background: #333; color: #888; cursor: default; }
+
+        /* --- Clipchamp Video Editor Styling --- */
+        .clipchamp-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; background: #121212; }
+        .clipchamp-header { height: 38px; background: #1b1b1b; border-bottom: 1px solid #2c2c2c; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; }
+        .clipchamp-main { flex: 1; display: flex; overflow: hidden; }
+        .clipchamp-sidebar { width: 180px; background: #161616; border-right: 1px solid #2a2a2a; padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+        .clipchamp-preview { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; position: relative; }
+        .clipchamp-canvas { width: 80%; height: 60%; background: #222; border-radius: 4px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; color: #777; font-size: 13px; position: relative; overflow: hidden; }
+        .clipchamp-timeline { height: 130px; background: #181818; border-top: 1px solid #2a2a2a; display: flex; flex-direction: column; padding: 6px; gap: 6px; }
+        .timeline-track { height: 36px; background: #242424; border-radius: 3px; border: 1px solid #383838; display: flex; align-items: center; padding: 0 8px; font-size: 11px; color: #aaa; position: relative; }
+        .timeline-clip { background: #005a9e; color: #fff; padding: 4px 12px; border-radius: 2px; font-size: 11px; cursor: move; }
+
+        /* --- Browser Shell --- */
+        .browser-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; }
+        .browser-nav { display: flex; gap: 8px; padding: 6px 10px; background: #222; border-bottom: 1px solid #333; align-items: center; }
+        .browser-nav button { background: none; border: none; color: #fff; cursor: pointer; font-size: 13px; padding: 2px 6px; }
+        .browser-input { flex: 1; background: #141414; border: 1px solid #3a3a3a; color: #fff; padding: 4px 12px; border-radius: 14px; font-size: 12px; outline: none; }
+        .browser-frame { flex: 1; border: none; width: 100%; background: #fff; }
+
+        /* --- Settings System Tab --- */
+        .win10-sidebar { width: 170px; background: var(--win-sidebar); border-right: 1px solid var(--win-border); display: flex; flex-direction: column; padding-top: 6px; }
+        .win10-tab { padding: 9px 14px; font-size: 12px; color: #ccc; cursor: pointer; border-left: 3px solid transparent; }
+        .win10-tab:hover { background: #222; color: #fff; }
+        .win10-tab.active { background: #2a2a2a; color: #fff; border-left: 3px solid var(--accent); }
+        .win10-content { flex: 1; padding: 24px; overflow-y: auto; font-size: 13px; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Desktop Workspace -->
+    <div id="desktop"></div>
+
+    <!-- Start Menu -->
+    <div id="start-menu">
+        <div class="start-header">Pinned Apps</div>
+        <div class="start-list" id="start-list"></div>
+    </div>
+
+    <!-- Taskbar -->
+    <div id="taskbar">
+        <div class="tb-btn" id="tb-start" title="Start">
+            <svg width="16" height="16" viewBox="0 0 640 640">
+                <path d="M.2 298.7L0 90.6l256-34.8v242.8H.2zM298.7 49.7L639.9 0v298.7H298.7V49.7zM640 341.3l-.1 298.7L298.7 592V341.3H640zM256 586.5L.2 551.5V341.3h255.8v245.2z" fill="white"/>
+            </svg>
+        </div>
+
+        <div id="tb-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#aaa">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input type="text" id="global-search" placeholder="Type here to search">
+        </div>
+
+        <div id="tb-pinned" style="display:flex; height:100%;"></div>
+
+        <div id="tray">
+            <div id="clock-widget">
+                <span id="time-display">12:00 PM</span>
+                <span id="date-display">1/1/2024</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN ENGINE JAVASCRIPT -->
+    <script>
+        /* =========================================================================
+           1. VIRTUAL FILESYSTEM (VFS) + PERSISTENCE ENGINE
+           ========================================================================= */
+        class VirtualFS {
+            constructor() {
+                this.tree = {
+                    "C:": {
+                        type: "dir",
+                        children: {
+                            "Windows": { type: "dir", children: { "System32": { type: "dir", children: { "cmd.exe": { type: "file", content: "BIN" } } } } },
+                            "Program Files": { type: "dir", children: {} },
+                            "Users": {
+                                type: "dir",
+                                children: {
+                                    "User": {
+                                        type: "dir",
+                                        children: {
+                                            "Desktop": { type: "dir", children: { "welcome.txt": { type: "file", content: "Windows 10 Pro 24H2 Active." } } },
+                                            "Documents": { type: "dir", children: { "notes.txt": { type: "file", content: "Project milestones." } } },
+                                            "Downloads": { type: "dir", children: {} },
+                                            "Pictures": { type: "dir", children: {} }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+
+            resolve(pathStr, cwd = "C:\\Users\\User") {
+                let clean = pathStr.replace(/\//g, "\\").trim();
+                if (!clean.startsWith("C:")) {
+                    clean = (cwd.endsWith("\\") ? cwd : cwd + "\\") + clean;
+                }
+                const parts = clean.split("\\").filter(p => p && p !== ".");
+                let cur = this.tree["C:"];
+                let resolved = ["C:"];
+
+                for (let i = 1; i < parts.length; i++) {
+                    const p = parts[i];
+                    if (p === "..") {
+                        if (resolved.length > 1) resolved.pop();
+                        cur = this._getNode(resolved.join("\\"));
+                    } else if (cur && cur.type === "dir" && cur.children[p]) {
+                        resolved.push(p);
+                        cur = cur.children[p];
+                    } else {
+                        return null;
+                    }
+                }
+                return { node: cur, path: resolved.join("\\"), parts };
+            }
+
+            _getNode(fullPath) {
+                const parts = fullPath.split("\\").filter(Boolean);
+                let cur = this.tree["C:"];
+                for (let i = 1; i < parts.length; i++) {
+                    if (!cur.children || !cur.children[parts[i]]) return null;
+                    cur = cur.children[parts[i]];
+                }
+                return cur;
+            }
+
+            mkdir(pathStr, cwd) {
+                const parts = pathStr.replace(/\//g, "\\").split("\\").filter(Boolean);
+                const folderName = parts.pop();
+                const parentPath = parts.length ? parts.join("\\") : cwd;
+                const parent = this.resolve(parentPath, cwd);
+                if (parent && parent.node.type === "dir") {
+                    parent.node.children[folderName] = { type: "dir", children: {} };
+                    this.onUpdate();
+                    return true;
+                }
+                return false;
+            }
+
+            writeFile(pathStr, content, cwd) {
+                const parts = pathStr.replace(/\//g, "\\").split("\\").filter(Boolean);
+                const fileName = parts.pop();
+                const parentPath = parts.length ? parts.join("\\") : cwd;
+                const parent = this.resolve(parentPath, cwd);
+                if (parent && parent.node.type === "dir") {
+                    parent.node.children[fileName] = { type: "file", content: content || "" };
+                    this.onUpdate();
+                    return true;
+                }
+                return false;
+            }
+
+            remove(pathStr, cwd) {
+                const res = this.resolve(pathStr, cwd);
+                if (!res || res.path === "C:" || res.path === "C:\\Users\\User") return false;
+                const parent = this._getNode(res.parts.slice(0, -1).join("\\"));
+                const target = res.parts[res.parts.length - 1];
+                if (parent && parent.children[target]) {
+                    delete parent.children[target];
+                    this.onUpdate();
+                    return true;
+                }
+                return false;
+            }
+
+            onUpdate() {
+                renderDesktop();
+                if (window.refreshExplorer) window.refreshExplorer();
+            }
+        }
+
+        const FS = new VirtualFS();
+
+
+        /* =========================================================================
+           2. PACKAGE MANAGER (winget + Microsoft Store Engine)
+           ========================================================================= */
+        const AppCatalog = [
+            {
+                id: "Google.Chrome",
+                name: "Google Chrome",
+                desc: "Fast, secure web browser built for modern internet.",
+                icon: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg",
+                launch: () => ChromeApp.open()
+            },
+            {
+                id: "Microsoft.Clipchamp",
+                name: "Clipchamp",
+                desc: "Quick and easy video editor with pro filters.",
+                icon: "https://img.icons8.com/color/48/clipchamp.png",
+                launch: () => ClipchampApp.open()
+            },
+            {
+                id: "Microsoft.VisualStudioCode",
+                name: "VS Code",
+                desc: "Code editing redefined. Built for developers.",
+                icon: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg",
+                launch: () => alert("VS Code runtime launching...")
+            },
+            {
+                id: "Spotify.Spotify",
+                name: "Spotify Music",
+                desc: "Play millions of songs and podcasts on your device.",
+                icon: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg",
+                launch: () => alert("Spotify Web Client connecting...")
+            }
+        ];
+
+        class PackageManager {
+            constructor() {
+                this.installed = new Set(["Microsoft.Edge", "Microsoft.WindowsTerminal", "Microsoft.WindowsSettings"]);
+            }
+
+            install(appId, onProgress, onComplete) {
+                let p = 0;
+                const iv = setInterval(() => {
+                    p += 20;
+                    if (onProgress) onProgress(p);
+                    if (p >= 100) {
+                        clearInterval(iv);
+                        this.installed.add(appId);
+                        renderDesktop();
+                        renderStartMenu();
+                        if (onComplete) onComplete();
+                    }
+                }, 100);
+            }
+
+            isInstalled(appId) { return this.installed.has(appId); }
+        }
+
+        const PkgMgr = new PackageManager();
+
+
+        /* =========================================================================
+           3. GLOBAL WINDOW SYSTEM API
+           ========================================================================= */
+        let zCounter = 100;
+        const activeWindows = new Map();
+
+        class Win10Window {
+            constructor(options = {}) {
+                this.id = options.id || "win_" + Math.random().toString(36).substr(2, 8);
+                this.title = options.title || "Application";
+                this.icon = options.icon || "";
+                this.width = options.width || 680;
+                this.height = options.height || 440;
+                this.x = options.x || Math.max(40, (window.innerWidth - this.width) / 2);
+                this.y = options.y || Math.max(40, (window.innerHeight - this.height) / 2);
+                this.isMaximized = false;
+                this.tbBtn = null;
+
+                this._build(options.content);
+                activeWindows.set(this.id, this);
+            }
+
+            _build(content) {
+                this.el = document.createElement("div");
+                this.el.className = "win10-window";
+                this.el.id = this.id;
+                this.el.style.width = `${this.width}px`;
+                this.el.style.height = `${this.height}px`;
+                this.el.style.left = `${this.x}px`;
+                this.el.style.top = `${this.y}px`;
+
+                this.el.innerHTML = `
+                    <div class="win10-titlebar">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            ${this.icon ? `<span>${this.icon}</span>` : ""}
+                            <span>${this.title}</span>
+                        </div>
+                        <div class="win10-controls">
+                            <div class="win10-btn min">&#x2014;</div>
+                            <div class="win10-btn max">&#x25A1;</div>
+                            <div class="win10-btn close">&#x2715;</div>
+                        </div>
+                    </div>
+                    <div class="win10-body">${content || ""}</div>
+                `;
+
+                document.body.appendChild(this.el);
+                this._bindEvents();
+            }
+
+            _bindEvents() {
+                this.el.onmousedown = () => this.focus();
+                this.el.querySelector(".min").onclick = () => this.close();
+                this.el.querySelector(".max").onclick = () => this.toggleMaximize();
+                this.el.querySelector(".close").onclick = () => this.close();
+
+                const bar = this.el.querySelector(".win10-titlebar");
+                bar.onmousedown = (e) => {
+                    if (e.target.closest(".win10-controls") || this.isMaximized) return;
+                    this.focus();
+                    let ox = e.clientX - this.el.offsetLeft, oy = e.clientY - this.el.offsetTop;
+                    document.querySelectorAll("iframe").forEach(f => f.style.pointerEvents = "none");
+
+                    const onMove = (ev) => {
+                        this.el.style.left = `${ev.clientX - ox}px`;
+                        this.el.style.top = `${ev.clientY - oy}px`;
+                    };
+                    const onUp = () => {
+                        document.removeEventListener("mousemove", onMove);
+                        document.removeEventListener("mouseup", onUp);
+                        document.querySelectorAll("iframe").forEach(f => f.style.pointerEvents = "auto");
+                    };
+                    document.addEventListener("mousemove", onMove);
+                    document.addEventListener("mouseup", onUp);
+                };
+            }
+
+            focus() {
+                activeWindows.forEach(w => w.el.classList.remove("active"));
+                this.el.classList.add("active");
+                this.el.style.zIndex = ++zCounter;
+                if (this.tbBtn) this.tbBtn.classList.add("active");
+            }
+
+            open() {
+                this.el.style.display = "flex";
+                this.focus();
+            }
+
+            close() {
+                this.el.style.display = "none";
+                this.el.classList.remove("active");
+                if (this.tbBtn) this.tbBtn.classList.remove("active");
+            }
+
+            toggle() { this.el.style.display === "flex" ? this.close() : this.open(); }
+
+            toggleMaximize() {
+                if (!this.isMaximized) {
+                    this.prevPos = { x: this.el.style.left, y: this.el.style.top, w: this.el.style.width, h: this.el.style.height };
+                    this.el.style.left = "0px"; this.el.style.top = "0px";
+                    this.el.style.width = "100vw"; this.el.style.height = "calc(100vh - 40px)";
+                    this.isMaximized = true;
+                } else {
+                    this.el.style.left = this.prevPos.x; this.el.style.top = this.prevPos.y;
+                    this.el.style.width = this.prevPos.w; this.el.style.height = this.prevPos.h;
+                    this.isMaximized = false;
+                }
+            }
+        }
+
+
+        /* =========================================================================
+           4. CORE WINDOWS 10 APPLICATIONS SETUP
+           ========================================================================= */
+
+        // --- A. File Explorer ---
+        const ExplorerApp = new Win10Window({
+            id: "win-explorer",
+            title: "File Explorer",
+            icon: `<img src="https://img.icons8.com/fluency/48/folder-invoices.png" width="14">`,
+            width: 740,
+            height: 480,
+            content: `
+                <div class="explorer-wrapper">
+                    <div class="explorer-toolbar">
+                        <button id="exp-btn-back">&#x2190;</button>
+                        <div class="explorer-path" id="exp-current-path">C:\\Users\\User</div>
+                        <button onclick="FS.mkdir('New Folder', window.currentExplorerDir);">&#xFF0B; New Folder</button>
+                    </div>
+                    <div class="explorer-body">
+                        <div class="explorer-tree">
+                            <div class="tree-node" onclick="navigateExplorer('C:\\Users\\User\\Desktop')">🖥 Desktop</div>
+                            <div class="tree-node" onclick="navigateExplorer('C:\\Users\\User\\Documents')">📁 Documents</div>
+                            <div class="tree-node" onclick="navigateExplorer('C:\\Users\\User\\Downloads')">📥 Downloads</div>
+                            <div class="tree-node" onclick="navigateExplorer('C:')">💽 Local Disk (C:)</div>
+                        </div>
+                        <div class="explorer-files" id="exp-file-grid"></div>
+                    </div>
+                </div>
+            `
+        });
+
+        window.currentExplorerDir = "C:\\Users\\User";
+        function navigateExplorer(dirPath) {
+            window.currentExplorerDir = dirPath;
+            const res = FS.resolve(dirPath);
+            document.getElementById("exp-current-path").innerText = dirPath;
+            const grid = document.getElementById("exp-file-grid");
+            grid.innerHTML = "";
+
+            if (res && res.node.type === "dir") {
+                Object.keys(res.node.children).forEach(name => {
+                    const item = res.node.children[name];
+                    const el = document.createElement("div");
+                    el.className = "file-item";
+                    const icon = item.type === "dir" 
+                        ? "https://img.icons8.com/fluency/48/folder-invoices.png" 
+                        : "https://img.icons8.com/fluency/48/txt.png";
+                    el.innerHTML = `<img src="${icon}"><span>${name}</span>`;
+                    el.ondblclick = () => {
+                        if (item.type === "dir") navigateExplorer(res.path + "\\" + name);
+                        else alert(`File: ${name}\n\nContent:\n${item.content}`);
+                    };
+                    grid.appendChild(el);
+                });
+            }
+        }
+        window.refreshExplorer = () => navigateExplorer(window.currentExplorerDir);
+        setTimeout(() => navigateExplorer("C:\\Users\\User"), 0);
+
+
+        // --- B. Command Prompt with winget & git ---
+        const CmdApp = new Win10Window({
+            id: "win-cmd",
+            title: "Command Prompt",
+            icon: `<img src="https://img.icons8.com/color/48/command-line.png" width="14">`,
+            width: 660,
+            height: 420,
+            content: `
+                <div class="cmd-terminal" id="cmd-term" onclick="document.getElementById('cli-input').focus()">
+                    <div class="cmd-output" id="cli-out">Microsoft Windows [Version 10.0.26100.24H2]<br>(c) Microsoft Corporation. All rights reserved.<br><br>Type "help" for a list of commands, "winget" for packages, or "git".<br></div>
+                    <div class="cmd-input-line">
+                        <span class="cmd-prompt" id="cli-prompt">C:\\Users\\User&gt;</span>
+                        <input type="text" id="cli-input" class="cmd-input" spellcheck="false" autocomplete="off">
+                    </div>
+                </div>
+            `
+        });
+
+        let cmdCwd = "C:\\Users\\User";
+        let gitRepo = null;
+
+        setTimeout(() => {
+            const input = document.getElementById("cli-input");
+            const out = document.getElementById("cli-out");
+            const prompt = document.getElementById("cli-prompt");
+            const term = document.getElementById("cmd-term");
+
+            input.onkeydown = (e) => {
+                if (e.key === "Enter") {
+                    const raw = input.value.trim();
+                    input.value = "";
+                    out.innerHTML += `${prompt.innerText} ${raw}<br>`;
+                    const args = raw.split(" ");
+                    const cmd = args[0].toLowerCase();
+
+                    // CLI Command Dispatcher
+                    if (cmd === "cls" || cmd === "clear") {
+                        out.innerHTML = "";
+                    } else if (cmd === "help") {
+                        out.innerHTML += "Available Commands:<br>  winget install &lt;app&gt; | search | list<br>  git init | status | add | commit | clone<br>  cd, dir, mkdir, del, type, echo, ver, exit<br><br>";
+                    } else if (cmd === "ver") {
+                        out.innerHTML += "Microsoft Windows [Version 10.0.26100.24H2]<br><br>";
+                    } else if (cmd === "dir") {
+                        const res = FS.resolve(cmdCwd);
+                        if (res && res.node.type === "dir") {
+                            out.innerHTML += ` Directory of ${res.path}<br><br>`;
+                            Object.keys(res.node.children).forEach(k => {
+                                const isD = res.node.children[k].type === "dir";
+                                out.innerHTML += `01/01/2024  12:00 PM    ${isD ? '&lt;DIR&gt;' : '     '}          ${k}<br>`;
+                            });
+                            out.innerHTML += "<br>";
+                        }
+                    } else if (cmd === "cd") {
+                        const target = args[1] || "C:\\Users\\User";
+                        const res = FS.resolve(target, cmdCwd);
+                        if (res && res.node.type === "dir") {
+                            cmdCwd = res.path;
+                            prompt.innerText = `${cmdCwd}&gt;`;
+                        } else {
+                            out.innerHTML += "The system cannot find the path specified.<br><br>";
+                        }
+                    } else if (cmd === "mkdir") {
+                        if (args[1]) FS.mkdir(args[1], cmdCwd);
+                        else out.innerHTML += "The syntax of the command is incorrect.<br><br>";
+                    } else if (cmd === "del" || cmd === "rm") {
+                        if (args[1]) FS.remove(args[1], cmdCwd);
+                    } else if (cmd === "winget") {
+                        const sub = args[1];
+                        if (sub === "search") {
+                            out.innerHTML += "Name                Id                         Version<br>------------------------------------------------------<br>";
+                            AppCatalog.forEach(a => out.innerHTML += `${a.name.padEnd(20)} ${a.id.padEnd(26)} latest<br>`);
+                            out.innerHTML += "<br>";
+                        } else if (sub === "install") {
+                            const targetApp = AppCatalog.find(a => a.id.toLowerCase() === (args[2] || "").toLowerCase() || a.name.toLowerCase().includes((args[2] || "").toLowerCase()));
+                            if (targetApp) {
+                                out.innerHTML += `Found ${targetApp.name} [${targetApp.id}]<br>Downloading & Installing: [==========] 100%<br>Successfully installed ${targetApp.name}!<br><br>`;
+                                PkgMgr.installed.add(targetApp.id);
+                                renderDesktop();
+                                renderStartMenu();
+                            } else {
+                                out.innerHTML += `No package found matching input criteria: ${args[2]}<br><br>`;
+                            }
+                        } else {
+                            out.innerHTML += "Windows Package Manager v1.7 (24H2)<br>Usage: winget [search | install | list]<br><br>";
+                        }
+                    } else if (cmd === "git") {
+                        const sub = args[1];
+                        if (sub === "init") {
+                            gitRepo = { branch: "main", staged: [], commits: [] };
+                            out.innerHTML += `Initialized empty Git repository in ${cmdCwd}\\.git\\<br><br>`;
+                        } else if (sub === "status") {
+                            if (!gitRepo) out.innerHTML += "fatal: not a git repository (or any of the parent directories)<br><br>";
+                            else out.innerHTML += `On branch ${gitRepo.branch}<br>Changes staged for commit: (${gitRepo.staged.length} files)<br><br>`;
+                        } else if (sub === "add") {
+                            if (gitRepo) { gitRepo.staged.push(args[2] || "."); out.innerHTML += `staged ${args[2] || 'all'}<br><br>`; }
+                        } else if (sub === "commit") {
+                            const msg = args.slice(3).join(" ") || "Commit updates";
+                            if (gitRepo) { gitRepo.commits.push(msg); out.innerHTML += `[${gitRepo.branch} (root-commit)] ${msg}<br><br>`; }
+                        } else {
+                            out.innerHTML += "git version 2.44.windows.1<br>Commands: init, status, add, commit, clone<br><br>";
+                        }
+                    } else if (raw) {
+                        out.innerHTML += `'${cmd}' is not recognized as an internal or external command.<br><br>`;
+                    }
+                    term.scrollTop = term.scrollHeight;
+                }
+            };
+        }, 0);
+
+
+        // --- C. Microsoft Store ---
+        const StoreApp = new Win10Window({
+            id: "win-store",
+            title: "Microsoft Store",
+            icon: `<img src="https://img.icons8.com/fluency/48/microsoft-store.png" width="14">`,
+            width: 820,
+            height: 520,
+            content: `
+                <div class="store-wrapper">
+                    <div class="store-nav">
+                        <span style="color:var(--accent);">Home</span>
+                        <span>Apps</span>
+                        <span>Gaming</span>
+                    </div>
+                    <div class="store-grid" id="store-app-list"></div>
+                </div>
+            `
+        });
+
+        function renderStore() {
+            const list = document.getElementById("store-app-list");
+            if (!list) return;
+            list.innerHTML = "";
+            AppCatalog.forEach(app => {
+                const isInst = PkgMgr.isInstalled(app.id);
+                const card = document.createElement("div");
+                card.className = "store-card";
+                card.innerHTML = `
+                    <div class="store-card-top">
+                        <img src="${app.icon}">
+                        <div>
+                            <div class="store-card-title">${app.name}</div>
+                            <div class="store-card-desc">${app.desc}</div>
+                        </div>
+                    </div>
+                    <button class="store-btn ${isInst ? 'installed' : ''}" id="btn-store-${app.id}">
+                        ${isInst ? 'Installed' : 'Get'}
+                    </button>
+                `;
+                card.querySelector("button").onclick = () => {
+                    if (PkgMgr.isInstalled(app.id)) return;
+                    const btn = document.getElementById(`btn-store-${app.id}`);
+                    btn.innerText = "Installing...";
+                    PkgMgr.install(app.id, (p) => btn.innerText = `${p}%`, () => renderStore());
+                };
+                list.appendChild(card);
+            });
+        }
+        setTimeout(renderStore, 0);
+
+
+        // --- D. Windows Clipchamp ---
+        const ClipchampApp = new Win10Window({
+            id: "win-clipchamp",
+            title: "Clipchamp Video Editor",
+            icon: `<img src="https://img.icons8.com/color/48/clipchamp.png" width="14">`,
+            width: 860,
+            height: 540,
+            content: `
+                <div class="clipchamp-wrapper">
+                    <div class="clipchamp-header">
+                        <span>Project: Untitled Video (1080p)</span>
+                        <button style="background:var(--accent); border:none; color:#fff; padding:4px 12px; border-radius:3px; cursor:pointer;">Export</button>
+                    </div>
+                    <div class="clipchamp-main">
+                        <div class="clipchamp-sidebar">
+                            <span style="font-weight:600;">Media Assets</span>
+                            <div style="border:1px dashed #444; padding:20px; text-align:center; font-size:11px; color:#888; border-radius:4px;">
+                                + Drag videos, music, images
+                            </div>
+                        </div>
+                        <div class="clipchamp-preview">
+                            <div class="clipchamp-canvas">
+                                <span>&#x25B6; Clip Preview Area</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clipchamp-timeline">
+                        <div class="timeline-track">
+                            <div class="timeline-clip">video_track_01.mp4</div>
+                        </div>
+                        <div class="timeline-track">
+                            <div class="timeline-clip" style="background:#008272;">audio_master.mp3</div>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+
+        // --- E. Browsers (Edge & Google Chrome) ---
+        const EdgeApp = new Win10Window({
+            id: "win-edge",
+            title: "Microsoft Edge",
+            icon: `<img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg" width="14">`,
+            width: 820,
+            height: 520,
+            content: `
+                <div class="browser-wrapper">
+                    <div class="browser-nav">
+                        <button onclick="document.getElementById('edge-frame').src = document.getElementById('edge-url').value;">&#x21BB;</button>
+                        <input class="browser-input" id="edge-url" type="text" value="https://bing.com">
+                    </div>
+                    <iframe class="browser-frame" id="edge-frame" src="https://bing.com"></iframe>
+                </div>
+            `
+        });
+
+        const ChromeApp = new Win10Window({
+            id: "win-chrome",
+            title: "Google Chrome",
+            icon: `<img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" width="14">`,
+            width: 820,
+            height: 520,
+            content: `
+                <div class="browser-wrapper">
+                    <div class="browser-nav">
+                        <button onclick="document.getElementById('chrome-frame').src = document.getElementById('chrome-url').value;">&#x21BB;</button>
+                        <input class="browser-input" id="chrome-url" type="text" value="https://google.com">
+                    </div>
+                    <iframe class="browser-frame" id="chrome-frame" src="https://google.com"></iframe>
+                </div>
+            `
+        });
+
+
+        // --- F. Settings (24H2) ---
+        const SettingsApp = new Win10Window({
+            id: "win-settings",
+            title: "Settings",
+            icon: `<img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Windows_Settings_app_icon.png/960px-Windows_Settings_app_icon.png" width="14" style="filter:brightness(0) invert(1);">`,
+            width: 700,
+            height: 460,
+            content: `
+                <div class="win10-sidebar">
+                    <div class="win10-tab active" onclick="switchSettingsTab('system')">System</div>
+                    <div class="win10-tab" onclick="switchSettingsTab('personalization')">Personalization</div>
+                </div>
+                <div class="win10-content" id="settings-view"></div>
+            `
+        });
+
+        function switchSettingsTab(tab) {
+            const v = document.getElementById("settings-view");
+            if (tab === "system") {
+                v.innerHTML = `
+                    <h2 style="margin-bottom:16px;">System About</h2>
+                    <p><b>Device name:</b> DESKTOP-WIN10-24H2</p>
+                    <p><b>Edition:</b> Windows 10 Pro 24H2</p>
+                    <p><b>Experience:</b> Windows Feature Experience Pack 2024</p>
+                `;
+            } else if (tab === "personalization") {
+                v.innerHTML = `
+                    <h2 style="margin-bottom:16px;">Background</h2>
+                    <p style="margin-bottom:8px;">Switch Wallpaper:</p>
+                    <button id="btn-next-bg" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:3px; cursor:pointer;">Next Wallpaper</button>
+                `;
+                document.getElementById("btn-next-bg").onclick = () => {
+                    const bgs = [
+                        "https://4kwallpapers.com/images/wallpapers/windows-10-dark-blue-5k-8k-8000x4500-733.jpg",
+                        "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?q=80&w=1920"
+                    ];
+                    window.bgIndex = ((window.bgIndex || 0) + 1) % bgs.length;
+                    document.body.style.backgroundImage = `url(${bgs[window.bgIndex]})`;
+                };
+            }
+        }
+        setTimeout(() => switchSettingsTab("system"), 0);
+
+
+        /* =========================================================================
+           5. DESKTOP & TASKBAR DYNAMIC SYNC
+           ========================================================================= */
+
+        function renderDesktop() {
+            const dt = document.getElementById("desktop");
+            dt.innerHTML = "";
+
+            // Built-in Icons
+            const icons = [
+                { name: "This PC", icon: "https://img.icons8.com/fluency/48/this-pc.png", action: () => ExplorerApp.open() },
+                { name: "Recycle Bin", icon: "https://img.icons8.com/fluency/48/recycle-bin.png", action: () => ExplorerApp.open() },
+                { name: "Microsoft Store", icon: "https://img.icons8.com/fluency/48/microsoft-store.png", action: () => StoreApp.open() },
+                { name: "Microsoft Edge", icon: "https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg", action: () => EdgeApp.open() },
+                { name: "Command Prompt", icon: "https://img.icons8.com/color/48/command-line.png", action: () => CmdApp.open() }
+            ];
+
+            // Add Installed packages to Desktop
+            AppCatalog.forEach(app => {
+                if (PkgMgr.isInstalled(app.id)) {
+                    icons.push({ name: app.name, icon: app.icon, action: app.launch });
+                }
+            });
+
+            // Add VFS Desktop Files
+            const res = FS.resolve("C:\\Users\\User\\Desktop");
+            if (res && res.node.children) {
+                Object.keys(res.node.children).forEach(fn => {
+                    icons.push({
+                        name: fn,
+                        icon: "https://img.icons8.com/fluency/48/txt.png",
+                        action: () => alert(`File: ${fn}\n\n${res.node.children[fn].content}`)
+                    });
+                });
+            }
+
+            icons.forEach(ic => {
+                const el = document.createElement("div");
+                el.className = "desktop-icon";
+                el.innerHTML = `<img src="${ic.icon}"><span>${ic.name}</span>`;
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll(".desktop-icon").forEach(d => d.classList.remove("selected"));
+                    el.classList.add("selected");
+                };
+                el.ondblclick = ic.action;
+                dt.appendChild(el);
+            });
+        }
+
+        function renderStartMenu() {
+            const list = document.getElementById("start-list");
+            list.innerHTML = `
+                <div class="start-item" onclick="ExplorerApp.open()"><img src="https://img.icons8.com/fluency/48/folder-invoices.png"><span>File Explorer</span></div>
+                <div class="start-item" onclick="StoreApp.open()"><img src="https://img.icons8.com/fluency/48/microsoft-store.png"><span>Microsoft Store</span></div>
+                <div class="start-item" onclick="EdgeApp.open()"><img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg"><span>Microsoft Edge</span></div>
+                <div class="start-item" onclick="CmdApp.open()"><img src="https://img.icons8.com/color/48/command-line.png"><span>Command Prompt</span></div>
+                <div class="start-item" onclick="SettingsApp.open()"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Windows_Settings_app_icon.png/960px-Windows_Settings_app_icon.png" style="filter:brightness(0) invert(1);"><span>Settings</span></div>
+            `;
+            AppCatalog.forEach(app => {
+                if (PkgMgr.isInstalled(app.id)) {
+                    list.innerHTML += `<div class="start-item" onclick="AppCatalog.find(a=>a.id==='${app.id}').launch()"><img src="${app.icon}"><span>${app.name}</span></div>`;
+                }
+            });
+        }
+
+        function renderTaskbar() {
+            const tb = document.getElementById("tb-pinned");
+            tb.innerHTML = "";
+            const apps = [
+                { icon: "https://img.icons8.com/fluency/48/folder-invoices.png", app: ExplorerApp },
+                { icon: "https://img.icons8.com/fluency/48/microsoft-store.png", app: StoreApp },
+                { icon: "https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg", app: EdgeApp },
+                { icon: "https://img.icons8.com/color/48/command-line.png", app: CmdApp },
+                { icon: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Windows_Settings_app_icon.png/960px-Windows_Settings_app_icon.png", app: SettingsApp, invert: true }
+            ];
+
+            apps.forEach(item => {
+                const btn = document.createElement("div");
+                btn.className = "tb-btn";
+                btn.innerHTML = `<img src="${item.icon}" style="${item.invert ? 'filter:brightness(0) invert(1);' : ''}">`;
+                btn.onclick = () => item.app.toggle();
+                item.app.tbBtn = btn;
+                tb.appendChild(btn);
+            });
+        }
+
+        // Live Clock
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById("time-display").innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById("date-display").innerText = d.toLocaleDateString();
+        }, 1000);
+
+        // Global Desktop & Start Menu Listeners
+        const startMenu = document.getElementById("start-menu");
+        document.getElementById("tb-start").onclick = (e) => { e.stopPropagation(); startMenu.classList.toggle("open"); };
+        document.onclick = (e) => {
+            if (!startMenu.contains(e.target) && e.target.id !== "tb-start") startMenu.classList.remove("open");
+            document.querySelectorAll(".desktop-icon").forEach(d => d.classList.remove("selected"));
+        };
+
+        // Initialize All
+        renderDesktop();
+        renderStartMenu();
+        renderTaskbar();
+    </script>
+</body>
+</html>
