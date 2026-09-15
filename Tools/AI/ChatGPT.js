@@ -8,11 +8,11 @@ export async function ChatGPT(model, key, text) {
             "Authorization": `Bearer ${key}`
         }),
         body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: model,
             messages: [
                 { 
                     role: "user",
-                    content: "Explain quantum computing in one sentence."
+                    content: text
                 }
             ]
         })
