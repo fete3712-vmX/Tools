@@ -1,0 +1,69 @@
+name: Code tester for C and C++
+#author: "xTymezz"
+
+on:
+  workflow_dispatch:
+
+env:
+  LANG: "c"
+  FILE: "main.c"
+  # c | c++
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile code to binaries
+        shell: bash
+        run: |
+          if [ "$LANG" = "c" ] && [ "$RUNNER_OS" = "Linux" ]; then
+            gcc -m32 "$FILE" -o linux32
+            gcc "$FILE" -o linux64
+            ./linux64
+
+          elif [ "$LANG" = "c" ] && [ "$RUNNER_OS" = "Windows" ]; then
+            gcc -m32 "$FILE" -o win32.exe
+            gcc "$FILE" -o win64.exe
+            ./win64.exe
+
+          elif [ "$LANG" = "c" ] && [ "$RUNNER_OS" = "macOS" ]; then
+            clang -m32 "$FILE" -o mac32
+            clang "$FILE" -o mac64
+            ./mac64
+
+          elif [ "$LANG" = "c++" ] && [ "$RUNNER_OS" = "Linux" ]; then
+            g++ -m32 "$FILE" -o linux32
+            g++ "$FILE" -o linux64
+            ./linux64
+
+          elif [ "$LANG" = "c++" ] && [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -m32 "$FILE" -o win32.exe
+            g++ "$FILE" -o win64.exe
+            ./win64.exe
+
+          elif [ "$LANG" = "c++" ] && [ "$RUNNER_OS" = "macOS" ]; then
+            clang++ -m32 "$FILE" -o mac32
+            clang++ "$FILE" -o mac64
+            ./mac64
+          fi
+
+      - name: Zip binaries
+        shell: bash
+        run: |
+          zip binaries.zip \
+            linux32 linux64 \
+            win32.exe win64.exe \
+            mac32 mac64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}
+          path: binaries.zip
