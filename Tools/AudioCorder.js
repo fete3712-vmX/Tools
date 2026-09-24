@@ -3,7 +3,7 @@
  //    Licencse: MIT  // BULIT BY (@fete3712-vmX)
 //==================//
 
-//<script src="path/to/file.js"></script>
+//<script src="https://raw.githubusercontent.com/fete3712-vmX/Tools/refs/heads/main/Tools/AudioCorder.js"></script>
 
 class MediaCorder {
     constructor() {
