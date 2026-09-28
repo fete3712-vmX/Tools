@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&amp;display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: rgb(27, 27, 27);
+            margin: 0;
+            padding-bottom: 30px;
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+            font-family: "Silkscreen", sans-serif;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            min-height: 80vh;
+            background: gray;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input,
+        select,
+        button {
+            font-family: "Silkscreen", sans-serif;
+            border: 3px solid rgb(27, 27, 27);
+            border-radius: 5px;
+            padding: 6px;
+            background: #eee;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .label {
+            font-family: "Silkscreen", sans-serif;
+            font-size: 0.85rem;
+            color: rgb(27, 27, 27);
+            font-weight: bold;
+        }
+
+        #file-input {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #a0a0a0;
+            padding: 10px;
+            border: 2px solid rgb(27, 27, 27);
+            border-radius: 5px;
+        }
+
+        #quality-slider, #scale-slider {
+            cursor: pointer;
+        }
+
+        #stats {
+            font-family: "Silkscreen", sans-serif;
+            font-size: 0.85rem;
+            color: #111;
+            background: #d4d4d4;
+            padding: 10px;
+            border: 2px solid rgb(27, 27, 27);
+            border-radius: 5px;
+            display: none;
+            line-height: 1.5;
+        }
+
+        #preview-box {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px dashed rgb(27, 27, 27);
+            border-radius: 5px;
+            padding: 10px;
+            background: #bbb;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        #preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            display: none;
+            border: 2px solid rgb(27, 27, 27);
+        }
+
+        #download {
+            font-family: "Silkscreen", sans-serif;
+            background: #27ae60;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+            text-decoration: none;
+            border: 3px solid rgb(27, 27, 27);
+            border-radius: 5px;
+        }
+
+        #download:hover {
+            background: #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Image Compressor</h2>
+
+    <div id="main">
+
+        <div class="row">
+            <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp">
+        </div>
+
+        <div class="controls">
+            <div class="row">
+                <span class="label">Format:</span>
+                <select id="format">
+                    <option value="image/jpeg">JPEG</option>
+                    <option value="image/webp" selected>WEBP</option>
+                    <option value="image/png">PNG</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <span class="label">Quality: <span id="quality-val">80%</span></span>
+                <input type="range" id="quality-slider" min="5" max="100" value="80">
+            </div>
+
+            <div class="row">
+                <span class="label">Scale: <span id="scale-val">100%</span></span>
+                <input type="range" id="scale-slider" min="10" max="100" value="100" step="5">
+            </div>
+        </div>
+
+        <div id="stats"></div>
+
+        <div id="preview-box">
+            <span id="preview-placeholder" class="label">Upload an image to see preview</span>
+            <img id="preview-img" alt="Compressed Preview">
+        </div>
+
+        <a id="download" download="compressed-image">DOWNLOAD COMPRESSED IMAGE</a>
+
+    </div>
+
+    <script>
+        const fileInput = document.getElementById("file-input");
+        const formatSelect = document.getElementById("format");
+        const qualitySlider = document.getElementById("quality-slider");
+        const qualityVal = document.getElementById("quality-val");
+        const scaleSlider = document.getElementById("scale-slider");
+        const scaleVal = document.getElementById("scale-val");
+        const stats = document.getElementById("stats");
+        const previewImg = document.getElementById("preview-img");
+        const previewPlaceholder = document.getElementById("preview-placeholder");
+        const downloadBtn = document.getElementById("download");
+
+        let originalImage = null;
+        let originalSize = 0;
+        let originalFileName = "";
+
+        qualitySlider.addEventListener("input", () => {
+            qualityVal.textContent = qualitySlider.value + "%";
+            compress();
+        });
+
+        scaleSlider.addEventListener("input", () => {
+            scaleVal.textContent = scaleSlider.value + "%";
+            compress();
+        });
+
+        formatSelect.addEventListener("change", compress);
+
+        fileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalSize = file.size;
+            originalFileName = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    compress();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+        }
+
+        function compress() {
+            if (!originalImage) return;
+
+            const scale = parseInt(scaleSlider.value, 10) / 100;
+            const targetWidth = Math.round(originalImage.width * scale);
+            const targetHeight = Math.round(originalImage.height * scale);
+
+            const canvas = document.createElement("canvas");
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+
+            const mimeType = formatSelect.value;
+            const quality = parseInt(qualitySlider.value, 10) / 100;
+
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+
+                const compressedUrl = URL.createObjectURL(blob);
+                previewImg.src = compressedUrl;
+                previewImg.style.display = "block";
+                previewPlaceholder.style.display = "none";
+
+                // Calculate savings
+                const compressedSize = blob.size;
+                const saved = originalSize - compressedSize;
+                const percentSaved = ((saved / originalSize) * 100).toFixed(1);
+
+                stats.style.display = "block";
+                stats.innerHTML = `
+                    <strong>Original:</strong> ${formatBytes(originalSize)} (${originalImage.width}x${originalImage.height})<br>
+                    <strong>Compressed:</strong> ${formatBytes(compressedSize)} (${targetWidth}x${targetHeight})<br>
+                    <strong>Saved:</strong> ${percentSaved > 0 ? percentSaved + '% smaller 🎉' : '0%'}
+                `;
+
+                // Set download link
+                const ext = mimeType.split("/")[1];
+                const baseName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) || "image";
+                downloadBtn.href = compressedUrl;
+                downloadBtn.download = `${baseName}-compressed.${ext}`;
+                downloadBtn.style.display = "block";
+
+            }, mimeType, quality);
+        }
+    </script>
+
+</body>
+</html>
