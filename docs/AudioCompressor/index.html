@@ -32,25 +32,64 @@
             width: 50vw;
             height: 80vh;
             background: gray;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        select {
+            background: #1b1b1b;
+            color: white;
+            border: 1px solid #444;
+            padding: 4px;
+            font-family: "Silkscreen", sans-serif;
+        }
+
+        #status {
+            color: #1b1b1b;
+            margin-top: 10px;
+            display: block;
+            font-size: 0.85rem;
         }
 
         audio {
             width: 100%;
-            transform: translateY(50vh)
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/gh/higuma/ogg-vorbis-encoder-js@master/lib/OggVorbisEncoder.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
 </head>
 
 <body>
     <center>
-        <h2 class="silkscreen-bold">Audio Compressorr</h2>
+        <h2 class="silkscreen-bold">Audio Compressor</h2>
     </center>
     <center>
         <div id="main">
-            <span class="silkscreen-regular">File:
-                <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.wma"/>
-            </span>
+            <div class="controls">
+                <span class="silkscreen-regular">File:
+                    <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.ogg"/>
+                </span>
+
+                <span class="silkscreen-regular">Bitrate:
+                    <select id="bitrateSelect">
+                        <option value="32">32 kbps (Maximum Compression)</option>
+                        <option value="48">48 kbps (Very High Compression)</option>
+                        <option value="64" selected>64 kbps (High Compression - Recommended)</option>
+                        <option value="96">96 kbps (Medium Compression)</option>
+                        <option value="128">128 kbps (Standard Quality)</option>
+                    </select>
+                </span>
+
+                <div id="status" class="silkscreen-regular"></div>
+            </div>
 
             <audio id="player" controls></audio>
         </div>
@@ -58,74 +97,102 @@
 
     <script>
         const fileInput = document.getElementById("fileInput");
+        const bitrateSelect = document.getElementById("bitrateSelect");
         const player = document.getElementById("player");
+        const statusText = document.getElementById("status");
+        let prevUrl = null;
+
+        function floatTo16BitPCM(input) {
+            const output = new Int16Array(input.length);
+            for (let i = 0; i < input.length; i++) {
+                const s = Math.max(-1, Math.min(1, input[i]));
+                output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            return output;
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+            return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+        }
 
         fileInput.addEventListener("change", async () => {
             const file = fileInput.files[0];
             if (!file) return;
 
-            const mimeType = (file.type || "").toLowerCase();
-            const fileName = file.name.toLowerCase();
+            statusText.textContent = "Decoding audio...";
 
-            // 1. REJECT OGG (Checks both MIME type and file extension)
-            const isOggMime = mimeType === "audio/ogg" || 
-                              mimeType === "application/ogg" || 
-                              mimeType === "audio/vorbis" ||
-                              mimeType.includes("ogg");
-
-            const isOggExt = fileName.endsWith(".ogg") || 
-                             fileName.endsWith(".oga") || 
-                             fileName.endsWith(".ogv") || 
-                             fileName.endsWith(".ogx");
-
-            if (isOggMime || isOggExt) {
-                alert("Error: OGG files are not allowed!");
-                fileInput.value = "";
-                return;
-            }
-
-            // 2. CHECK IF VALID AUDIO (MIME type or extension fallback)
-            const isAudioMime = mimeType.startsWith("audio/");
-            const isAudioExt = /\.(mp3|wav|flac|aac|m4a|wma|aiff)$/i.test(fileName);
-
-            if (!isAudioMime && !isAudioExt) {
-                alert("Error: Please select a valid audio file (MP3, WAV, FLAC, etc.)!");
-                fileInput.value = "";
-                return;
-            }
-
+            let audioCtx = null;
             try {
-                // 3. Decode input file
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                // 1. Decode audio
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const arrayBuffer = await file.arrayBuffer();
                 const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-                // 4. Encode to Ogg Vorbis
-                const encoder = new OggVorbisEncoder(
-                    audioBuffer.sampleRate, 
-                    audioBuffer.numberOfChannels, 
-                    0.5
-                );
+                statusText.textContent = "Compressing...";
 
-                const channels = [];
-                for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
-                    channels.push(audioBuffer.getChannelData(i));
+                // 2. Setup encoder with selected bitrate
+                const bitrate = parseInt(bitrateSelect.value, 10);
+                const numChannels = Math.min(audioBuffer.numberOfChannels, 2);
+                const sampleRate = audioBuffer.sampleRate;
+                const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
+                const mp3Data = [];
+                const sampleBlockSize = 1152;
+
+                // 3. Convert & Encode PCM chunks
+                if (numChannels === 1) {
+                    const samples = floatTo16BitPCM(audioBuffer.getChannelData(0));
+                    for (let i = 0; i < samples.length; i += sampleBlockSize) {
+                        const chunk = samples.subarray(i, i + sampleBlockSize);
+                        const mp3buf = mp3encoder.encodeBuffer(chunk);
+                        if (mp3buf.length > 0) mp3Data.push(mp3buf);
+                    }
+                } else {
+                    const left = floatTo16BitPCM(audioBuffer.getChannelData(0));
+                    const right = floatTo16BitPCM(audioBuffer.getChannelData(1));
+                    for (let i = 0; i < left.length; i += sampleBlockSize) {
+                        const leftChunk = left.subarray(i, i + sampleBlockSize);
+                        const rightChunk = right.subarray(i, i + sampleBlockSize);
+                        const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+                        if (mp3buf.length > 0) mp3Data.push(mp3buf);
+                    }
                 }
-                encoder.encode(channels);
 
-                // 5. Finish and download
-                const oggBlob = encoder.finish("audio/ogg");
-                const oggUrl = URL.createObjectURL(oggBlob);
+                // 4. Flush remaining buffer
+                const endBuf = mp3encoder.flush();
+                if (endBuf.length > 0) mp3Data.push(endBuf);
 
-                player.src = oggUrl;
+                // 5. Create compressed Blob & preview
+                const mp3Blob = new Blob(mp3Data, { type: "audio/mp3" });
 
+                if (prevUrl) URL.revokeObjectURL(prevUrl);
+                const mp3Url = URL.createObjectURL(mp3Blob);
+                prevUrl = mp3Url;
+
+                player.src = mp3Url;
+
+                const originalSize = file.size;
+                const newSize = mp3Blob.size;
+                const percent = Math.round((1 - newSize / originalSize) * 100);
+                const sign = percent >= 0 ? `-${percent}%` : `+${Math.abs(percent)}%`;
+
+                statusText.textContent = `Done! ${formatSize(originalSize)} -> ${formatSize(newSize)} (${sign})`;
+
+                // 6. Download file
                 const a = document.createElement("a");
-                a.href = oggUrl;
-                a.download = file.name.replace(/\.[^/.]+$/, "") + ".ogg";
+                a.href = mp3Url;
+                a.download = file.name.replace(/\.[^/.]+$/, "") + `_${bitrate}k.mp3`;
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
+
             } catch (err) {
-                alert("Failed to decode audio file.");
+                statusText.textContent = "Error processing file.";
+                alert("Error: " + (err.message || err));
                 console.error(err);
+            } finally {
+                if (audioCtx) audioCtx.close();
             }
         });
     </script>
