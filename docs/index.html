@@ -1,45 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xTymezz's Tools</title>
+    <meta name="description" content="Free, lightweight, client-side developer utilities.">
+
+    <!-- Open Graph for Discord/Twitter previews -->
+    <meta property="og:title" content="xTymezz's Tools">
+    <meta property="og:description" content="Free, client-side web utilities for developers.">
+    <meta property="og:type" content="website">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        .font-inter {
-            font-family: Inter;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background: rgb(27,27,27);
+            background-color: rgb(27, 27, 27);
+            color: #ededed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
         }
-        
-        h2 {
-            color: white;
+
+        .container {
+            width: 100%;
+            max-width: 600px;
         }
-        
-        a {
-            color: white;
-            font-family: Inter;
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #3a3a3a;
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .brand span {
+            color: #888888;
+            font-weight: 400;
+        }
+
+        .github-link {
+            color: #aaaaaa;
             text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+            transition: all 0.2s ease;
         }
-        span {
-            font-family: Inter;
+
+        .github-link:hover {
+            color: #ffffff;
+            border-color: #666666;
+            background: #252525;
+        }
+
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tool-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #222222;
+            border: 1px solid #333333;
+            padding: 16px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .tool-card:hover {
+            background-color: #2a2a2a;
+            border-color: #555555;
+            transform: translateY(-2px);
+        }
+
+        .tool-card .arrow {
+            color: #666666;
+            font-size: 1.1rem;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+
+        .tool-card:hover .arrow {
+            color: #ffffff;
+            transform: translateX(3px);
+        }
+
+        .badge-fixed {
+            font-size: 0.75rem;
+            color: #70b0ff;
+            background: rgba(112, 176, 255, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
-    <span style="color: gray;">xTymezz's</span>
-    <h2 class="font-inter" style="display: inline-block;">Tools</h2>
-    <br>
-    <span style="color: white;"> ---------------------------------------------
-    <br>
-    </span>
-    <a href="EasyActions">Easy Github Actions</a>
-    <br>
-    <a href="QRGen">Live QR Code generator</a>
-    <br>
-    <a href="AudioCompressor">Audio Compressor (best when .wav file, FIXED)</a>
-    <br>
-    <a href="CORSPlayground">CORS Playground</a>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <span>xTymezz's</span> Tools
+            </div>
+            <a href="https://github.com/fete3712-vmX/Tools" class="github-link" target="_blank" rel="noopener noreferrer">
+                ★ Star on GitHub
+            </a>
+        </header>
+
+        <main class="tools-list">
+            <a href="EasyActions" class="tool-card">
+                <span>Easy Github Actions</span>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="QRGen" class="tool-card">
+                <span>Live QR Code Generator</span>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="AudioCompressor" class="tool-card">
+                <span>
+                    Audio Compressor
+                    <span class="badge-fixed">WAV / Fixed</span>
+                </span>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="CORSPlayground" class="tool-card">
+                <span>CORS Playground</span>
+                <span class="arrow">&rarr;</span>
+            </a>
+        </main>
+    </div>
 </body>
 </html>
