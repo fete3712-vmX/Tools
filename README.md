@@ -1,16 +1,25 @@
-<img src="ICO.png" alt="da banner"/>
+<p align="center">
+  <img src="ICO.png" alt="banner" /><br />
+  <img src="https://img.shields.io/endpoint?url=https://fete3712-vmX.github.io/Tools/badge.json&style=flat-square" alt="Days Since Release" />
+  <img src="https://img.shields.io/github/stars/fete3712-vmX/Tools?style=flat-square" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/last-commit/fete3712-vmX/Tools?style=flat-square" alt="Last commit" />
+  <img src="https://img.shields.io/github/repo-size/fete3712-vmX/Tools?style=flat-square" alt="Repo size" />
+  <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="100% Client-Side" />
+  <img src="https://img.shields.io/badge/ads-zero-informational?style=flat-square" alt="Zero Ads" />
+</p>
 
-![Days Since Release](https://img.shields.io/endpoint?url=https://fete3712-vmX.github.io/Tools/badge.json)
+A collection of lightweight, client-side web tools.
 
-A collection of lightweight, client-side developer utilities running 100% in the browser.
+Live site: https://fete3712-vmX.github.io/Tools/
 
-**Live Site:** [fete3712-vmx.github.io/Tools/](https://fete3712-vmx.github.io/Tools/)
+## Included Tools
 
----
+- **CORS Playground**: Test and debug CORS requests, headers, and preflights in-browser.
+- **Easy GitHub Actions**: Generate ready-to-use workflow YAML files.
+- **Audio Compressor**: In-browser audio compression (optimized for .wav).
+- **Live QR Code Generator**: Generate customizable QR codes in real-time.
 
-### Included Tools
+## Notes
 
-* **CORS Playground** — Test, debug, and understand CORS requests and headers without setting up a test server.
-* **Easy GitHub Actions** — Quickly generate ready-to-use GitHub Actions workflow YAML files.
-* **Audio Compressor** — Compress audio files (optimized for `.wav`) directly in your browser without uploading data to external servers.
-* **Live QR Code Generator** — Generate customizable QR codes in real-time.
+- 100% client-side: no files or requests are sent to external servers.
+- Free and ad-free.
