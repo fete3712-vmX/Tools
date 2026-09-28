@@ -179,14 +179,6 @@
 
                 statusText.textContent = `Done! ${formatSize(originalSize)} -> ${formatSize(newSize)} (${sign})`;
 
-                // 6. Download file
-                const a = document.createElement("a");
-                a.href = mp3Url;
-                a.download = file.name.replace(/\.[^/.]+$/, "") + `_${bitrate}k.mp3`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
             } catch (err) {
                 statusText.textContent = "Error processing file.";
                 alert("Error: " + (err.message || err));
