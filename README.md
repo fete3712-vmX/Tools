@@ -18,6 +18,7 @@ Live site: https://fete3712-vmX.github.io/Tools/
 - **Easy GitHub Actions**: Generate ready-to-use workflow YAML files.
 - **Audio Compressor**: In-browser audio compression (optimized for .wav).
 - **Live QR Code Generator**: Generate customizable QR codes in real-time.
+- **Gemini AI Playground**: In-browser interface for testing Gemini prompts (Client-side, full privacy).
 
 ## Notes
 
