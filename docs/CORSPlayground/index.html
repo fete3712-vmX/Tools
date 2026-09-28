@@ -1,12 +1,8 @@
 <!DOCTYPE html>
-
-<!-- AI was used to remake, because old one couldnt be recovered -->
-
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>CORS Playground</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -189,10 +185,7 @@
         const send = document.getElementById("send");
 
         proxy.addEventListener("change", () => {
-            if (
-                proxy.value == "corssh" ||
-                proxy.value == "corsproxy"
-            ) {
+            if (proxy.value === "corssh" || proxy.value === "corsproxy") {
                 keyinput.disabled = false;
             } else {
                 keyinput.disabled = true;
@@ -201,80 +194,63 @@
         });
 
         send.addEventListener("click", async () => {
-            let url = urlinput.value;
+            let url = urlinput.value.trim();
 
             if (!url) {
                 response.value = "ERROR: Enter a URL.";
                 return;
             }
 
+            // Auto-prefix protocol if missing
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "https://" + url;
+                urlinput.value = url;
+            }
+
             const method = methodinput.value;
+            const headers = {};
+            const key = keyinput.value.trim();
 
-            if (proxy.value == "allorigins") {
-                url =
-                    "https://api.allorigins.win/raw?url=" +
-                    encodeURIComponent(url);
+            if (proxy.value === "allorigins") {
+                url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
             }
 
-            if (proxy.value == "corsproxy") {
-                url =
-                    "https://corsproxy.io/?" +
-                    encodeURIComponent(url);
+            // CORSProxy.io uses ?key=KEY&url=URL if key is present
+            if (proxy.value === "corsproxy") {
+                if (key) {
+                    url = `https://corsproxy.io/?key=${encodeURIComponent(key)}&url=${encodeURIComponent(url)}`;
+                } else {
+                    url = "https://corsproxy.io/?url=" + encodeURIComponent(url);
+                }
             }
 
-            if (proxy.value == "corssh") {
+            // CORS.SH uses x-cors-api-key header
+            if (proxy.value === "corssh") {
                 url = "https://cors.sh/" + url;
+                if (key) {
+                    headers["x-cors-api-key"] = key;
+                }
             }
 
-            if (proxy.value == "corsbridge") {
-                url =
-                    "https://api.cors.syrins.tech/?url=" +
-                    encodeURIComponent(url);
+            if (proxy.value === "corsbridge") {
+                url = "https://api.cors.syrins.tech/?url=" + encodeURIComponent(url);
             }
 
-            if (proxy.value == "corsproxyorg") {
-                url =
-                    "https://corsproxy.org/?" +
-                    encodeURIComponent(url);
+            if (proxy.value === "corsproxyorg") {
+                url = "https://corsproxy.org/?" + encodeURIComponent(url);
             }
 
             response.value = "Loading...";
 
             try {
                 const options = {
-                    method: method
+                    method: method,
+                    headers: headers
                 };
 
-                if (
-                    method != "GET" &&
-                    method != "HEAD" &&
-                    bodyinput.value
-                ) {
+                if (method !== "GET" && method !== "HEAD" && bodyinput.value) {
                     options.body = bodyinput.value;
-
-                    options.headers = {
-                        "Content-Type": "application/json"
-                    };
-                }
-
-                if (
-                    proxy.value == "corsproxy" &&
-                    keyinput.value
-                ) {
-                    options.headers = options.headers || {};
-
-                    options.headers["x-api-key"] =
-                        keyinput.value;
-                }
-
-                if (
-                    proxy.value == "corssh" &&
-                    keyinput.value
-                ) {
-                    options.headers = options.headers || {};
-
-                    options.headers["x-cors-api-key"] =
-                        keyinput.value;
+                    options.headers["Content-Type"] = "application/json";
                 }
 
                 const result = await fetch(url, options);
@@ -291,7 +267,7 @@
             } catch (error) {
                 response.value =
                     "ERROR:\n\n" +
-                    error;
+                    error.message;
             }
         });
     </script>
