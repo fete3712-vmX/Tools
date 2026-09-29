@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Files in One File.html</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+            color: rgb(202, 202, 202);
+            font-family: "Silkscreen", sans-serif;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 65vw;
+            min-height: 80vh;
+            background: gray;
+            box-sizing: border-box;
+            padding: 16px;
+            color: rgb(27, 27, 27);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        button, label.btn, select {
+            border-radius: 0px;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202) !important;
+            -webkit-text-fill-color: rgb(202,202,202) !important;
+            font-family: "Silkscreen", sans-serif;
+            font-size: 13px;
+            padding: 6px 12px;
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+        }
+
+        button:hover, label.btn:hover, select:hover {
+            background: rgb(95, 95, 95);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .folder-bar {
+            width: 100%;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202);
+            padding: 6px 10px;
+            box-sizing: border-box;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #files {
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202);
+            width: 100%;
+            height: 180px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .file-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
+            border-bottom: 1px solid rgb(50,50,50);
+        }
+
+        .file-entry span.fname {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .file-entry span.fname:hover {
+            color: #ffffff;
+        }
+
+        /* Preview box inside #main */
+        #previewBox {
+            width: 100%;
+            flex: 1;
+            min-height: 240px;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(50, 50, 50);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        #previewHeader {
+            background: rgb(35, 35, 35);
+            padding: 6px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: rgb(202,202,202);
+            border-bottom: 2px solid rgb(0,0,0);
+        }
+
+        #previewContent {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            background: rgb(27, 27, 27);
+        }
+
+        iframe {
+            width: 100%;
+            height: 280px;
+            border: none;
+            background: white;
+        }
+
+        pre {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            background: rgb(20,20,20);
+            color: rgb(202,202,202);
+            font-family: "Silkscreen", monospace;
+            font-size: 11px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+
+        img, video {
+            max-width: 90%;
+            max-height: 240px;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Files in One File.html</h2>
+    </center>
+
+    <center>
+        <div id="main">
+            <!-- Action buttons -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                <label class="btn">
+                    + Add File
+                    <input type="file" id="file" multiple />
+                </label>
+                <label class="btn">
+                    + Add Folder
+                    <input type="file" id="folder" webkitdirectory directory multiple />
+                </label>
+                <button id="setFolder">Target Folder</button>
+                <label class="btn">
+                    Load Archive
+                    <input type="file" id="load" accept=".html" />
+                </label>
+                <button id="export">Export Archive</button>
+            </div>
+
+            <div class="folder-bar">
+                <span>Upload Dir: <span id="curDir">/</span></span>
+                <button style="padding: 2px 6px; font-size: 10px;" id="resetDir">Reset</button>
+            </div>
+
+            <!-- Counter -->
+            <b class="silkscreen-bold"><span id="text">(0 files)</span></b>
+
+            <!-- File list container -->
+            <div id="files">No files detected</div>
+
+            <!-- Preview pane -->
+            <div id="previewBox">
+                <div id="previewHeader">
+                    <span id="previewTitle">Preview: None</span>
+                    <div id="htmlToggle" style="display: none; gap: 4px;">
+                        <button style="padding: 2px 6px; font-size: 10px;" id="modeLive" onclick="setMode('live')">Page</button>
+                        <button style="padding: 2px 6px; font-size: 10px;" id="modeSrc" onclick="setMode('source')">Source</button>
+                    </div>
+                </div>
+                <div id="previewContent">
+                    <span style="font-size: 11px; color: gray;">Click a file above to preview</span>
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <script>
+        let fileList = [];
+        let curFolder = "";
+        let activeIdx = -1;
+        let previewMode = 'live';
+
+        const fileInput = document.getElementById("file");
+        const folderInput = document.getElementById("folder");
+        const loadInput = document.getElementById("load");
+        const text = document.getElementById("text");
+        const files = document.getElementById("files");
+        const curDir = document.getElementById("curDir");
+        const previewTitle = document.getElementById("previewTitle");
+        const previewContent = document.getElementById("previewContent");
+        const htmlToggle = document.getElementById("htmlToggle");
+
+        function isHTML(name, type) {
+            return name.endsWith(".html") || name.endsWith(".htm") || type === "text/html";
+        }
+
+        function updateUI() {
+            text.textContent = `(${fileList.length} files)`;
+
+            if (fileList.length === 0) {
+                files.textContent = "No files detected";
+                previewTitle.textContent = "Preview: None";
+                previewContent.innerHTML = '<span style="font-size: 11px; color: gray;">Click a file above to preview</span>';
+                htmlToggle.style.display = "none";
+                return;
+            }
+
+            files.innerHTML = "";
+            fileList.forEach((f, idx) => {
+                const row = document.createElement("div");
+                row.className = "file-entry";
+                const isH = isHTML(f.path, f.type);
+                row.innerHTML = `
+                    <span class="fname">[${isH ? 'HTML' : 'FILE'}] ${f.path} (${(f.size/1024).toFixed(1)}k)</span>
+                    <button style="padding: 1px 6px; font-size: 10px;" onclick="delFile(${idx})">X</button>
+                `;
+                row.querySelector(".fname").onclick = () => showPreview(idx);
+                files.appendChild(row);
+            });
+        }
+
+        window.delFile = (i) => {
+            fileList.splice(i, 1);
+            if (activeIdx === i) activeIdx = -1;
+            updateUI();
+        };
+
+        // File upload
+        fileInput.addEventListener("change", (e) => {
+            for (const f of e.target.files) {
+                const path = curFolder ? `${curFolder}/${f.name}` : f.name;
+                const type = isHTML(f.name, f.type) ? "text/html" : (f.type || "application/octet-stream");
+                fileList.push({ path, size: f.size, type, blob: f });
+            }
+            e.target.value = "";
+            updateUI();
+            if (fileList.length) showPreview(fileList.length - 1);
+        });
+
+        // Folder upload
+        folderInput.addEventListener("change", (e) => {
+            for (const f of e.target.files) {
+                const path = f.webkitRelativePath || f.name;
+                const type = isHTML(path, f.type) ? "text/html" : (f.type || "application/octet-stream");
+                fileList.push({ path, size: f.size, type, blob: f });
+            }
+            e.target.value = "";
+            updateUI();
+            if (fileList.length) showPreview(fileList.length - 1);
+        });
+
+        // Folder management
+        document.getElementById("setFolder").addEventListener("click", () => {
+            const f = prompt("Folder destination (e.g. 'pages' or 'assets'):");
+            if (f !== null) {
+                curFolder = f.replace(/^\/+|\/+$/g, '').trim();
+                curDir.textContent = curFolder ? `/${curFolder}/` : "/";
+            }
+        });
+
+        document.getElementById("resetDir").addEventListener("click", () => {
+            curFolder = "";
+            curDir.textContent = "/";
+        });
+
+        // Preview system
+        async function showPreview(idx) {
+            activeIdx = idx;
+            const f = fileList[idx];
+            previewTitle.textContent = `Preview: ${f.path}`;
+            const isH = isHTML(f.path, f.type);
+            htmlToggle.style.display = isH ? "flex" : "none";
+
+            const url = URL.createObjectURL(f.blob);
+
+            if (isH) {
+                if (previewMode === 'source') {
+                    const text = await f.blob.text();
+                    previewContent.innerHTML = `<pre>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`;
+                } else {
+                    // Render HTML as a live page with connected assets
+                    let html = await f.blob.text();
+                    fileList.forEach(other => {
+                        if (other !== f) {
+                            const oUrl = URL.createObjectURL(other.blob);
+                            html = html.replaceAll(`"${other.path}"`, `"${oUrl}"`)
+                                       .replaceAll(`'${other.path}'`, `'${oUrl}'`)
+                                       .replaceAll(`"${other.path.split('/').pop()}"`, `"${oUrl}"`)
+                                       .replaceAll(`'${other.path.split('/').pop()}'`, `'${oUrl}'`);
+                        }
+                    });
+                    previewContent.innerHTML = '<iframe sandbox="allow-scripts allow-modals allow-same-origin"></iframe>';
+                    previewContent.querySelector("iframe").srcdoc = html;
+                }
+            } else if (f.type.startsWith("image/")) {
+                previewContent.innerHTML = `<img src="${url}">`;
+            } else if (f.type.startsWith("video/")) {
+                previewContent.innerHTML = `<video src="${url}" controls></video>`;
+            } else if (f.type.startsWith("audio/")) {
+                previewContent.innerHTML = `<audio src="${url}" controls></audio>`;
+            } else if (f.type.startsWith("text/") || f.type.includes("json") || f.type.includes("javascript")) {
+                const text = await f.blob.text();
+                previewContent.innerHTML = `<pre>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`;
+            } else {
+                previewContent.innerHTML = `<div style="font-size:12px">Binary file (${f.type})<br><br><a href="${url}" download="${f.path.split('/').pop()}"><button>Download</button></a></div>`;
+            }
+        }
+
+        window.setMode = (m) => {
+            previewMode = m;
+            if (activeIdx !== -1) showPreview(activeIdx);
+        };
+
+        // GZIP compression & Base64
+        const blobToBase64 = b => new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result.split(',')[1] || '');
+            r.onerror = rej;
+            r.readAsDataURL(b);
+        });
+
+        async function compressGZIP(str) {
+            const bytes = new TextEncoder().encode(str);
+            const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip"));
+            const buf = await new Response(stream).arrayBuffer();
+            let bin = "";
+            const u8 = new Uint8Array(buf);
+            for (let i = 0; i < u8.length; i += 8192) {
+                bin += String.fromCharCode.apply(null, u8.subarray(i, i + 8192));
+            }
+            return btoa(bin);
+        }
+
+        async function decompressGZIP(b64) {
+            const bin = atob(b64);
+            const u8 = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+            const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"));
+            return await new Response(stream).text();
+        }
+
+        // Export system in the exact Silkscreen QRGen style
+        document.getElementById("export").addEventListener("click", async () => {
+            if (fileList.length === 0) return alert("No files added!");
+            const btn = document.getElementById("export");
+            btn.textContent = "Packing...";
+
+            const serialized = [];
+            for (const f of fileList) {
+                const d = await blobToBase64(f.blob);
+                serialized.push({ p: f.path, t: f.type, d });
+            }
+
+            const compressed = await compressGZIP(JSON.stringify(serialized));
+
+            const template = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<title>Archive Viewer</title>
+<style>
+body{background:rgb(27,27,27);color:rgb(202,202,202);font-family:"Silkscreen",sans-serif;margin:0;padding:20px 0}
+h2{color:rgb(122,122,122)}
+#main{border:5px solid gray;border-radius:5px;width:75vw;height:85vh;background:gray;padding:12px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+button,select{border-radius:0;border:2px solid black;background:rgb(74,74,74);color:rgb(202,202,202);font-family:"Silkscreen";padding:4px 8px;cursor:pointer}
+button:hover{background:rgb(95,95,95)}
+#viewport{flex:1;border:2px solid black;background:rgb(27,27,27);overflow:auto;display:flex;align-items:center;justify-content:center}
+iframe{width:100%;height:100%;border:none;background:white}
+pre{width:100%;height:100%;margin:0;padding:8px;background:rgb(15,15,15);color:rgb(202,202,202);font-family:"Silkscreen";overflow:auto;white-space:pre-wrap;box-sizing:border-box}
+img,video{max-width:90%;max-height:90%;border:2px solid black}
+</style></head><body>
+<center><h2>Archive Viewer</h2></center>
+<center><div id="main">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <select id="filePick" onchange="show(this.value)"></select>
+      <span id="hToggle" style="display:none">
+        <button onclick="setMode('live')">Page</button>
+        <button onclick="setMode('src')">Source</button>
+      </span>
+    </div>
+    <div>
+      <a id="dlCur" href="#" download><button>Download</button></a>
+      <button onclick="dlAll()">Download All</button>
+    </div>
+  </div>
+  <div id="viewport"></div>
+</div></center>
+<script id="DATA" type="text/plain">${compressed}<\/script>
+<script>
+let F=[],cur=0,mode='live';
+async function init(){
+  const raw=atob(document.getElementById("DATA").textContent.trim());
+  const u8=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)u8[i]=raw.charCodeAt(i);
+  const stream=new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"));
+  F=JSON.parse(await new Response(stream).text());
+  const p=document.getElementById("filePick");
+  F.forEach((f,i)=>{const o=document.createElement("option");o.value=i;o.textContent=f.p;p.appendChild(o);});
+  const idx=F.findIndex(f=>f.p==='index.html'||f.p.endsWith('/index.html'));
+  show(idx!==-1?idx:0);
+}
+function getBlob(f){
+  const b=atob(f.d),u=new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+  return new Blob([u],{type:f.t});
+}
+function setMode(m){mode=m;show(cur);}
+async function show(i){
+  cur=Number(i);document.getElementById("filePick").value=cur;
+  const f=F[cur],blob=getBlob(f),url=URL.createObjectURL(blob);
+  const isH=f.p.endsWith('.html')||f.p.endsWith('.htm')||f.t==='text/html';
+  document.getElementById("hToggle").style.display=isH?'inline-block':'none';
+  const dl=document.getElementById("dlCur");dl.href=url;dl.download=f.p.split('/').pop();
+  const v=document.getElementById("viewport");
+  if(isH){
+    if(mode==='src'){
+      const t=await blob.text();v.innerHTML='<pre>'+t.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</pre>';
+    } else {
+      let html=await blob.text();
+      F.forEach(o=>{if(o!==f){const ou=URL.createObjectURL(getBlob(o));html=html.replaceAll('"'+o.p+'"','"'+ou+'"').replaceAll("'"+o.p+"'","'"+ou+"'").replaceAll('"'+o.p.split('/').pop()+'"','"'+ou+'"').replaceAll("'"+o.p.split('/').pop()+"'","'"+ou+"'");}});
+      v.innerHTML='<iframe sandbox="allow-scripts allow-modals allow-same-origin"></iframe>';
+      v.querySelector("iframe").srcdoc=html;
+    }
+  } else if(f.t.startsWith("image/")){ v.innerHTML='<img src="'+url+'">'; }
+  else if(f.t.startsWith("video/")){ v.innerHTML='<video src="'+url+'" controls></video>'; }
+  else if(f.t.startsWith("audio/")){ v.innerHTML='<audio src="'+url+'" controls></audio>'; }
+  else if(f.t.startsWith("text/")||f.t.includes("json")||f.t.includes("javascript")){
+    const t=await blob.text();v.innerHTML='<pre>'+t.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</pre>';
+  } else { v.innerHTML='<div>Binary File ('+f.t+')</div>'; }
+}
+function dlAll(){
+  F.forEach((f,i)=>{setTimeout(()=>{const a=document.createElement("a");a.href=URL.createObjectURL(getBlob(f));a.download=f.p.split("/").pop();a.click();},i*180)});
+}
+init();
+<\/script></body></html>`;
+
+            const blob = new Blob([template], { type: "text/html" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "archive.html";
+            a.click();
+            btn.textContent = "Export Archive";
+        });
+
+        // Load archive
+        loadInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const text = await file.text();
+            const match = text.match(/<script id="DATA" type="text\/plain">([\s\S]*?)<\/script>/);
+
+            if (!match || !match[1]) return alert("Invalid archive file.");
+
+            try {
+                const json = await decompressGZIP(match[1].trim());
+                const parsed = JSON.parse(json);
+
+                for (const item of parsed) {
+                    const bin = atob(item.d);
+                    const u8 = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+                    const blob = new Blob([u8], { type: item.t });
+                    fileList.push({ path: item.p, size: blob.size, type: item.t, blob });
+                }
+
+                updateUI();
+                if (fileList.length) showPreview(0);
+            } catch (err) {
+                alert("Decompress error: " + err.message);
+            }
+            e.target.value = "";
+        });
+    </script>
+</body>
+</html>
