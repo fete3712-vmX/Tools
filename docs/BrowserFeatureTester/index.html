@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+
+        .centertext {
+            text-align: center;
+        }
+
+        h2,
+        div {
+            color: rgb(200, 200, 200);
+            font-family: "Outfit", sans-serif;
+            font-weight: 450;
+        }
+
+        div {
+            margin: 6px 0;
+        }
+
+        img {
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 class="centertext">Browser Feature Tester</h2>
+    <div class="centertext" id="tests">Loading.</div>
+
+    <script>
+        const testsContainer = document.getElementById("tests");
+        let isFirstRun = true;
+
+        async function test(testFn, name = testFn.name || "Feature Test") {
+            if (isFirstRun) {
+                testsContainer.innerHTML = "";
+                isFirstRun = false;
+            }
+
+            const icons = {
+                success: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNC40MzE1IDMuMzIzMkw1Ljk2MTUxIDEzLjMyMzJMNS4xNzA4IDEzLjI4NzRMMS44MjA4IDguNTE3NEwyLjYzOTE1IDcuOTQyNjhMNS42MTY5NyAxMi4xODI3TDEzLjY2ODQgMi42NzY4OEwxNC40MzE1IDMuMzIzMloiIGZpbGw9ImdyZWVuIi8+Cjwvc3ZnPg==",
+                error: "https://raw.githubusercontent.com/microsoft/vscode-icons/refs/heads/main/icons/light/error.svg"
+            };
+
+            try {
+                const timeout = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timed out (took >2s)")), 2000)
+                );
+
+                const result = await Promise.race([
+                    Promise.resolve().then(() => testFn()),
+                    timeout
+                ]);
+
+                const extraInfo = result !== undefined ? ` (${result})` : "";
+                testsContainer.innerHTML += `<div><img src="${icons.success}"/> ${name}${extraInfo}</div>`;
+            } catch (error) {
+                console.error(`[FAIL] ${name}:`, error);
+                testsContainer.innerHTML += `<div><img src="${icons.error}"/> ${name} [${error.message || error}]</div>`;
+            }
+        }
+
+        // --- All Tests Must Run Inside This Async Wrapper ---
+        (async () => {
+            // Test 1: Battery API
+            await test(async () => {
+                if (!("getBattery" in navigator)) throw new Error("Not supported");
+                const battery = await navigator.getBattery();
+                return `${Math.round(battery.level * 100)}%`;
+            }, "navigator.getBattery");
+
+            // Test 2: Geolocation API
+            await test(() => {
+                if (!("geolocation" in navigator)) throw new Error("Not supported");
+            }, "navigator.geolocation");
+
+            // Test 3: Bluetooth API
+            await test(() => {
+                if (!("bluetooth" in navigator)) throw new Error("Not supported");
+            }, "navigator.bluetooth");
+
+            // Test 4: LocalStorage
+            await test(() => {
+                localStorage.setItem("__test", "1");
+                localStorage.removeItem("__test");
+            }, "localStorage");
+
+            // Test 5: USB
+            await test(async () => {
+                if (!("usb" in navigator)) {
+                    throw new Error("WebUSB not supported (Chrome/Edge only)");
+                }
+                const devices = await navigator.usb.getDevices();
+                return `${devices.length} paired device(s)`;
+            }, "navigator.usb");
+
+            // Test 6: navigator.deviceMemory
+            await test(() => {
+                if (!("deviceMemory" in navigator) || navigator.deviceMemory === undefined) {
+                    throw new Error("Not supported (Chromium only)");
+                }
+                return `${navigator.deviceMemory} GB RAM`;
+            }, "navigator.deviceMemory");
+
+            // Test 7: Vibration API
+            await test(() => {
+                if (!("vibrate" in navigator)) {
+                    throw new Error("Not supported (Safari/iOS does not support Vibration)");
+                }
+                const success = navigator.vibrate([100, 50, 100]);
+                return success ? "Vibrated" : "Blocked (needs user tap or no vibrator hardware)";
+            }, "navigator.vibrate");
+
+            // Test 8: WebSocket (Moved inside async wrapper!)
+            await test(() => {
+                if (!("WebSocket" in window)) {
+                    throw new Error("WebSockets not supported in this browser");
+                }
+
+                return new Promise((resolve, reject) => {
+                    const socket = new WebSocket("wss://echo.websocket.org");
+
+                    socket.addEventListener("open", () => {
+                        socket.send("ping");
+                    });
+
+                    socket.addEventListener("message", () => {
+                        socket.close();
+                        resolve("Connected & Echoed");
+                    });
+
+                    socket.addEventListener("error", () => {
+                        reject(new Error("Connection failed or server unreachable"));
+                    });
+                });
+            }, "WebSocket (Live Echo)");
+
+            // Test 9: Native AI Translator API
+            await test(async () => {
+                // 1. Verify existence
+                if (!("translation" in window) || !("createTranslator" in window.translation)) {
+                    throw new Error("Not supported (Experimental Chrome 131+ AI API)");
+                }
+
+                // 2. Check status for English -> Spanish
+                const status = await translation.canTranslate({
+                    sourceLanguage: "en",
+                    targetLanguage: "es"
+                });
+
+                if (status === "no") {
+                    throw new Error("Language pair not available");
+                }
+
+                // 3. Create translator and perform a test translation
+                const translator = await translation.createTranslator({
+                    sourceLanguage: "en",
+                    targetLanguage: "es"
+                });
+
+                const result = await translator.translate("Hello");
+                return `EN->ES: ${result}`;
+            }, "window.translation");
+        })();
+    </script>
+</body>
+
+</html>
