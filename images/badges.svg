@@ -1,1 +1,13 @@
-
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="25" viewBox="0 0 750 25">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; gap: 4px; align-items: center; margin: 0; padding: 0;">
+      <img src="https://img.shields.io/endpoint?url=https://fete3712-vmX.github.io/Tools/badge.json&style=flat-square" alt="Days Since Release" />
+      <img src="https://img.shields.io/github/stars/fete3712-vmX/Tools?style=flat-square" alt="GitHub stars" />
+      <img src="https://img.shields.io/github/last-commit/fete3712-vmX/Tools?style=flat-square" alt="Last commit" />
+      <img src="https://img.shields.io/github/repo-size/fete3712-vmX/Tools?style=flat-square" alt="Repo size" />
+      <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="100% Client-Side" />
+      <img src="https://img.shields.io/badge/ads-zero-informational?style=flat-square" alt="Zero Ads" />
+      <img src="https://www.codefactor.io/repository/github/fete3712-vmx/tools/badge?style=flat-square" alt="Code factor" />
+    </div>
+  </foreignObject>
+</svg>
