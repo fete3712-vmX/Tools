@@ -1,29 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Github Actions</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
-            async src="//gc.zgo.at/count.js"></script>
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 
 <body>
     <h2 class="font-inter">Easy Github Actions</h2>
 
     <h4 class="font-inter">Name</h4>
-    <input id="nameInput">
+    <input id="nameInput" value="CI">
 
-    <h4 class="font-inter">Code</h4>
-    <textarea id="codeInput"></textarea>
+    <h4 class="font-inter">Triggers</h4>
+    <div class="checkbox-group">
+        <label><input type="checkbox" id="onPush" checked> Push</label>
+        <label><input type="checkbox" id="onPR" checked> Pull Request</label>
+        <label><input type="checkbox" id="onDispatch" checked> Manual Dispatch</label>
+    </div>
 
-    <h5 class="font-inter">Runs on Linux Latest, runs every deployment</h5>
+    <h4 class="font-inter">Branch</h4>
+    <input id="branchInput" value="main">
 
-    <span>Code:</span>
-    <button id="gen" type="button">Generate YAML</button>
+    <h4 class="font-inter">Runner OS</h4>
+    <select id="osSelect">
+        <option value="ubuntu-latest">ubuntu-latest</option>
+        <option value="windows-latest">windows-latest</option>
+        <option value="macos-latest">macos-latest</option>
+    </select>
 
-    <textarea id="code" style="resize:none; width:100%; height:300px;"></textarea>
+    <h4 class="font-inter">Pre-run Steps</h4>
+    <div class="checkbox-group">
+        <label><input type="checkbox" id="stepCheckout" checked> Checkout repo</label>
+        <label><input type="checkbox" id="stepNode"> Setup Node.js (v20)</label>
+        <label><input type="checkbox" id="stepPython"> Setup Python (v3.11)</label>
+    </div>
+
+    <h4 class="font-inter">Run Code</h4>
+    <textarea id="codeInput" rows="4">echo "Build started"
+npm test</textarea>
+
+    <div class="button-row">
+        <button id="gen" type="button">Generate YAML</button>
+        <button id="copyBtn" class="secondary" type="button">Copy</button>
+        <button id="dlBtn" class="secondary" type="button">Download</button>
+    </div>
+
+    <textarea id="code" style="resize:vertical; width:100%; height:320px;" readonly></textarea>
 
     <script src="main.js"></script>
 </body>
