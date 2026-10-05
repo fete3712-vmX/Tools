@@ -20,7 +20,7 @@ See the full directory in **[TOOLS.md](TOOLS.md)**.
 
 - **[EasyActions](https://fete3712-vmx.github.io/Tools/EasyActions/)** — Visual GitHub Actions workflow YAML generator.
 - **[CORS Playground](https://fete3712-vmx.github.io/Tools/CORSPlayground/)** — Client-side CORS playground
-- **[Gemini Playground](https://fete3712-vmx.github.io/Tools/GeminiAIPlayground/)** — In-browser testing Gemini.
+- **[Gemini Playground](https://fete3712-vmx.github.io/Tools/GeminiAIPlayground/)** — In Browser To esting Gemini | All processing is client-side. Third-party API keys (e.g. Gemini) talk directly to the provider from your browser—no proxy or intermediate backend
 
 ## Notes
 
