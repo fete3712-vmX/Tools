@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 55vw;
+            min-height: 85vh;
+            background: gray;
+            box-sizing: border-box;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .input-box::placeholder {
+            font-family: "Silkscreen";
+            font-size: 1.6vh;
+        }
+        .input-box {
+            border-radius: 0px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202) !important;
+            -webkit-text-fill-color: rgb(202,202,202) !important;
+            font-family: "Silkscreen";
+            font-size: 1.5vh;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        .label {
+            display: block;
+            text-align: left;
+            margin-top: 8px;
+        }
+        #status {
+            text-align: left;
+            font-size: 1.4vh;
+            color: rgb(40, 40, 40);
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Live JWT Decoder</h2>
+    </center>
+    <center>
+        <div id="main">
+            <span class="silkscreen-bold label">Encoded Token:</span>
+            <textarea id="jwt-input" class="input-box" rows="4" placeholder="Paste your eyJhbGciOi... token here"></textarea>
+
+            <div id="status" class="silkscreen-bold"></div>
+
+            <span class="silkscreen-bold label">Header:</span>
+            <textarea id="header-output" class="input-box" rows="5" readonly placeholder="Decoded header will appear here..."></textarea>
+
+            <span class="silkscreen-bold label">Payload:</span>
+            <textarea id="payload-output" class="input-box" rows="8" readonly placeholder="Decoded payload will appear here..."></textarea>
+
+            <span class="silkscreen-bold label">Signature:</span>
+            <textarea id="signature-output" class="input-box" rows="2" readonly placeholder="Signature hash will appear here..."></textarea>
+        </div>
+    </center>
+
+    <script>
+        const jwtInput = document.getElementById("jwt-input");
+        const headerOutput = document.getElementById("header-output");
+        const payloadOutput = document.getElementById("payload-output");
+        const signatureOutput = document.getElementById("signature-output");
+        const statusDiv = document.getElementById("status");
+
+        // Base64URL decoder supporting UTF-8 strings
+        function decodeBase64Url(str) {
+            let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4) {
+                base64 += '=';
+            }
+            try {
+                const binaryStr = atob(base64);
+                const bytes = Uint8Array.from(binaryStr, c => c.charCodeAt(0));
+                return new TextDecoder().decode(bytes);
+            } catch (e) {
+                throw new Error("Invalid Base64 string");
+            }
+        }
+
+        jwtInput.addEventListener("input", () => {
+            const token = jwtInput.value.trim();
+
+            if (!token) {
+                headerOutput.value = "";
+                payloadOutput.value = "";
+                signatureOutput.value = "";
+                statusDiv.innerText = "";
+                return;
+            }
+
+            const parts = token.split('.');
+
+            if (parts.length !== 3) {
+                statusDiv.innerText = "[!] Error: JWT must have 3 parts separated by dots.";
+                headerOutput.value = "";
+                payloadOutput.value = "";
+                signatureOutput.value = "";
+                return;
+            }
+
+            try {
+                // Decode Header
+                const decodedHeader = decodeBase64Url(parts[0]);
+                headerOutput.value = JSON.stringify(JSON.parse(decodedHeader), null, 2);
+
+                // Decode Payload
+                const decodedPayload = decodeBase64Url(parts[1]);
+                payloadOutput.value = JSON.stringify(JSON.parse(decodedPayload), null, 2);
+
+                // Display Signature
+                signatureOutput.value = parts[2];
+                statusDiv.innerText = "[*] Valid token format parsed.";
+            } catch (err) {
+                statusDiv.innerText = "[!] Error parsing token JSON/Base64.";
+            }
+        });
+    </script>
+</body>
+</html>
