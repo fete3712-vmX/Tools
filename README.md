@@ -12,6 +12,7 @@ A collection of lightweight, client-side web tools.
 
 **Live site:** https://fete3712-vmX.github.io/Tools/
 
+
 ## Included Tools
 
 See the full directory in **[TOOLS.md](TOOLS.md)**.
@@ -26,3 +27,4 @@ See the full directory in **[TOOLS.md](TOOLS.md)**.
 
 - 100% client-side: no files, tokens, or requests are sent to external servers.
 - Free, open source, and ad-free.
+- **PWA / Partial Offline:** Core app shell and standalone tools work offline. Tools relying on external CDNs or APIs (e.g. Gemini) require a network connection.
