@@ -1,6 +1,5 @@
 <p align="center">
   <img src="images/banner.png" alt="banner" /><br />
-  <img src="https://img.shields.io/endpoint?url=https://fete3712-vmX.github.io/Tools/badge.json&style=flat-square" alt="Days Since Release" />
   <img src="https://img.shields.io/github/last-commit/fete3712-vmX/Tools?style=flat-square" alt="Last commit" />
   <img src="https://img.shields.io/github/repo-size/fete3712-vmX/Tools?style=flat-square" alt="Repo size" />
   <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="100% Client-Side" />
