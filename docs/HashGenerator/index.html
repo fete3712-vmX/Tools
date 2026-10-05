@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            min-height: 80vh;
+            background: gray;
+            box-sizing: border-box;
+            padding: 15px;
+        }
+        .input-box::placeholder {
+            font-family: "Silkscreen";
+            font-size: 1.8vh;
+        }
+        .input-box {
+            border-radius: 0px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202) !important;
+            -webkit-text-fill-color: rgb(202,202,202) !important;
+            font-family: "Silkscreen";
+            font-size: 1.6vh;
+            padding: 6px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+        .output-box {
+            cursor: pointer;
+        }
+        .output-box:hover {
+            border-color: rgb(202,202,202);
+        }
+        .label {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Live Hash Generator</h2>
+    </center>
+    <center>
+        <div id="main">
+            <span class="silkscreen-regular label">Data:</span>
+            <input id="text" class="input-box" placeholder="Type text to hash..."/>
+            
+            <span class="silkscreen-bold label">SHA-256 (Click to Copy):</span>
+            <input id="sha256" class="input-box output-box" readonly placeholder="Waiting for input..."/>
+
+            <span class="silkscreen-bold label">SHA-1:</span>
+            <input id="sha1" class="input-box output-box" readonly placeholder="Waiting for input..."/>
+
+            <span class="silkscreen-bold label">SHA-512:</span>
+            <input id="sha512" class="input-box output-box" readonly placeholder="Waiting for input..."/>
+        </div>
+    </center>
+    <script>
+        const input = document.getElementById("text");
+        const sha256Box = document.getElementById("sha256");
+        const sha1Box = document.getElementById("sha1");
+        const sha512Box = document.getElementById("sha512");
+
+        async function computeHash(algorithm, message) {
+            if (!message) return "";
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest(algorithm, msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        input.addEventListener("input", async () => {
+            const val = input.value;
+            if (!val) {
+                sha256Box.value = "";
+                sha1Box.value = "";
+                sha512Box.value = "";
+                return;
+            }
+
+            sha256Box.value = await computeHash("SHA-256", val);
+            sha1Box.value = await computeHash("SHA-1", val);
+            sha512Box.value = await computeHash("SHA-512", val);
+        });
+
+        // Click any output to quickly copy it to clipboard
+        document.querySelectorAll(".output-box").forEach(box => {
+            box.addEventListener("click", () => {
+                if (box.value) {
+                    navigator.clipboard.writeText(box.value);
+                    const original = box.value;
+                    box.value = "COPIED TO CLIPBOARD!";
+                    setTimeout(() => {
+                        box.value = original;
+                    }, 800);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
