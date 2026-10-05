@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            min-height: 80vh;
+            background: gray;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+        .input-box {
+            border-radius: 0px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(74,74,74);
+            color: rgb(202,202,202) !important;
+            -webkit-text-fill-color: rgb(202,202,202) !important;
+            font-family: "Silkscreen";
+            font-size: 1.6vh;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .input-box:hover {
+            border-color: rgb(202,202,202);
+        }
+        .btn {
+            border-radius: 0px;
+            border: 2px solid rgb(0,0,0);
+            background: rgb(55,55,55);
+            color: rgb(202,202,202);
+            font-family: "Silkscreen";
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .btn:hover {
+            background: rgb(40,40,40);
+        }
+        .btn:active {
+            background: rgb(20,20,20);
+        }
+        .options {
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 1.4vh;
+        }
+        .options label {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .label {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+        }
+        textarea.input-box {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h2 class="silkscreen-bold">Live UUID Generator</h2>
+    </center>
+    <center>
+        <div id="main">
+            <button id="gen-btn" class="btn silkscreen-bold">[ GENERATE NEW ]</button>
+
+            <div class="options silkscreen-regular">
+                <label>
+                    <input type="checkbox" id="opt-upper"> UPPERCASE
+                </label>
+                <label>
+                    <input type="checkbox" id="opt-nohyphens"> NO HYPHENS
+                </label>
+            </div>
+
+            <span class="silkscreen-bold label">UUID v4 (Click to Copy):</span>
+            <input id="single-uuid" class="input-box" readonly />
+
+            <span class="silkscreen-bold label">Bulk UUIDs (x5):</span>
+            <textarea id="bulk-uuid" class="input-box" rows="7" readonly></textarea>
+        </div>
+    </center>
+    <script>
+        const singleBox = document.getElementById("single-uuid");
+        const bulkBox = document.getElementById("bulk-uuid");
+        const genBtn = document.getElementById("gen-btn");
+        const optUpper = document.getElementById("opt-upper");
+        const optNoHyphens = document.getElementById("opt-nohyphens");
+
+        function createUUID() {
+            let id = crypto.randomUUID();
+            if (optNoHyphens.checked) {
+                id = id.replace(/-/g, "");
+            }
+            if (optUpper.checked) {
+                id = id.toUpperCase();
+            }
+            return id;
+        }
+
+        function generateAll() {
+            singleBox.value = createUUID();
+
+            let bulk = [];
+            for (let i = 0; i < 5; i++) {
+                bulk.push(createUUID());
+            }
+            bulkBox.value = bulk.join("\n");
+        }
+
+        // Copy functionality with visual feedback
+        function setupCopy(element) {
+            element.addEventListener("click", () => {
+                if (element.value) {
+                    navigator.clipboard.writeText(element.value);
+                    const original = element.value;
+                    element.value = "COPIED TO CLIPBOARD!";
+                    setTimeout(() => {
+                        element.value = original;
+                    }, 800);
+                }
+            });
+        }
+
+        setupCopy(singleBox);
+        setupCopy(bulkBox);
+
+        genBtn.addEventListener("click", generateAll);
+        optUpper.addEventListener("change", generateAll);
+        optNoHyphens.addEventListener("change", generateAll);
+
+        // Generate on page load
+        generateAll();
+    </script>
+</body>
+</html>
