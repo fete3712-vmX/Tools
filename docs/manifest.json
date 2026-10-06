@@ -1,6 +1,6 @@
 {
       "name": "Tools",
-        "short_name": "T+",
+        "short_name": "Tools",
           "description": "Fast, 100% client-side developer utilities",
             "start_url": "./",
               "scope": "./",
