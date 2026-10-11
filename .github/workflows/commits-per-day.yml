@@ -5,7 +5,12 @@ on:
     branches:
       - main
   schedule:
+    # Runs at 00:00 UTC daily (adjust hour if you want your local midnight)
     - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI for testing
+
+permissions:
+  contents: write
 
 jobs:
   update-badge:
@@ -19,19 +24,32 @@ jobs:
       - name: Calculate Commits Today
         id: count
         run: |
+          export TZ="Europe/Warsaw"
           TODAY=$(date +'%Y-%m-%d')
-          COUNT=$(git log --since="$TODAY 00:00:00" --until="$TODAY 23:59:59" --invert-grep --author="github-actions" --oneline | wc -l)
+
+          COUNT=$(git log --since="$TODAY 00:00:00" --until="$TODAY 23:59:59" \
+            --invert-grep --author="github-actions" --oneline | wc -l | tr -d ' ')
+
           echo "commits=$COUNT" >> $GITHUB_OUTPUT
+          echo "Found $COUNT commit(s) today ($TODAY)."
 
       - name: Update README
         run: |
           COMMITS=${{ steps.count.outputs.commits }}
-          sed -i 's|<img src="https://shields.io[0-9]*-blue" alt="Commits Today">|<img src="https://shields.io'"$COMMITS"'-blue" alt="Commits Today">|g' README.md
+
+          # Matches badges like: https://img.shields.io/badge/commits_today-<ANY_NUMBER>-blue
+          sed -E -i "s|(https://img\.shields\.io/badge/commits[_%20]today-)[0-9]+(-blue)|\1${COMMITS}\2|g" README.md
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          git add README.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update daily commit badge" && git push)
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
+          git add README.md
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update daily commit badge [skip ci]"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No changes in badge count. Skipping commit."
+          fi
