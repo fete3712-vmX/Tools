@@ -8,52 +8,385 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    
+    <!-- Embedded exact styles so previews render without raw.githubusercontent MIME blocks -->
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+            color: rgb(202, 202, 202);
+            font-family: "Silkscreen", sans-serif;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            margin: 14px 0 6px 0;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 55vw;
+            min-width: 320px;
+            max-width: 850px;
+            min-height: 80vh;
+            background: gray;
+            box-sizing: border-box;
+            padding: 16px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        input, textarea, select {
+            border-radius: 0px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgb(0, 0, 0);
+            background: rgb(74, 74, 74);
+            color: rgb(202, 202, 202) !important;
+            -webkit-text-fill-color: rgb(202, 202, 202) !important;
+            font-family: "Silkscreen", sans-serif;
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 8px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            font-family: "Silkscreen", sans-serif;
+            color: rgb(160, 160, 160);
+        }
+
+        button {
+            border-radius: 0px;
+            border: 2px solid rgb(0, 0, 0);
+            background: rgb(74, 74, 74);
+            color: rgb(202, 202, 202);
+            font-family: "Silkscreen", sans-serif;
+            padding: 6px 12px;
+            cursor: pointer;
+            margin: 6px 4px 6px 0;
+        }
+
+        button:active {
+            background: rgb(40, 40, 40);
+        }
+
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 12px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            display: inline;
+            margin: 0 4px 0 0;
+            cursor: pointer;
+        }
+
+        /* Step Card Styling */
+        .step-box {
+            border: 2px solid black;
+            background: rgb(55, 55, 55);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .step-header input {
+            margin-bottom: 0;
+        }
+
+        .btn-del {
+            background: rgb(140, 30, 30);
+            color: white;
+            border: 2px solid black;
+            padding: 6px 10px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .btn-del:active {
+            background: rgb(80, 10, 10);
+        }
+
+        #code {
+            font-family: monospace;
+            font-size: 13px;
+            height: 320px;
+            resize: vertical;
+            white-space: pre;
+            background: rgb(35, 35, 35);
+        }
+    </style>
 </head>
 
 <body>
-    <h2 class="font-inter">Easy Github Actions</h2>
+    <div id="main">
+        <h2>Easy Github Actions</h2>
 
-    <h4 class="font-inter">Name</h4>
-    <input id="nameInput" value="CI">
+        <h4>Name</h4>
+        <input id="nameInput" value="CI">
 
-    <h4 class="font-inter">Triggers</h4>
-    <div class="checkbox-group">
-        <label><input type="checkbox" id="onPush" checked> Push</label>
-        <label><input type="checkbox" id="onPR" checked> Pull Request</label>
-        <label><input type="checkbox" id="onDispatch" checked> Manual Dispatch</label>
+        <h4>Triggers</h4>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="onPush" checked> Push</label>
+            <label><input type="checkbox" id="onPR" checked> Pull Request</label>
+            <label><input type="checkbox" id="onDispatch" checked> Manual Dispatch</label>
+            <label><input type="checkbox" id="onSchedule"> Schedule (Cron)</label>
+        </div>
+
+        <div id="cronWrap" style="display: none;">
+            <h4>Cron Expression</h4>
+            <input id="cronInput" value="0 0 * * *" placeholder="0 0 * * *">
+        </div>
+
+        <h4>Branch</h4>
+        <input id="branchInput" value="main">
+
+        <h4>Runner OS</h4>
+        <select id="osSelect">
+            <option value="ubuntu-latest">ubuntu-latest</option>
+            <option value="windows-latest">windows-latest</option>
+            <option value="macos-latest">macos-latest</option>
+        </select>
+
+        <h4>Pre-run Steps</h4>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="stepCheckout" checked> Checkout repo</label><br>
+            <label><input type="checkbox" id="stepNode"> Setup Node.js</label>
+            <input id="nodeVersionInput" value="20" placeholder="Node ver" style="display:none; width:120px; margin-left: 10px;"><br>
+            <label><input type="checkbox" id="stepPython"> Setup Python</label>
+            <input id="pythonVersionInput" value="3.11" placeholder="Python ver" style="display:none; width:120px; margin-left: 10px;"><br>
+            <label><input type="checkbox" id="stepGo"> Setup Go</label><br>
+            <label><input type="checkbox" id="stepRust"> Setup Rust</label>
+        </div>
+
+        <h4>Custom Run Steps</h4>
+        <div id="stepsContainer"></div>
+        <button id="addStepBtn" type="button">+ Add Step</button>
+
+        <h4>Upload Artifact</h4>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="stepArtifact"> Upload Artifact</label>
+        </div>
+        <div id="artWrap" style="display: none;">
+            <input id="artPathInput" value="dist" placeholder="Path to artifact (e.g. dist or build/)">
+        </div>
+
+        <div style="margin: 16px 0 8px 0;">
+            <button id="gen" type="button">Generate YAML</button>
+            <button id="copyBtn" type="button">Copy</button>
+            <button id="dlBtn" type="button">Download</button>
+        </div>
+
+        <h4>Generated Output</h4>
+        <textarea id="code" readonly></textarea>
     </div>
 
-    <h4 class="font-inter">Branch</h4>
-    <input id="branchInput" value="main">
+    <script>
+        const nameInput = document.getElementById("nameInput");
+        const branchInput = document.getElementById("branchInput");
+        const osSelect = document.getElementById("osSelect");
 
-    <h4 class="font-inter">Runner OS</h4>
-    <select id="osSelect">
-        <option value="ubuntu-latest">ubuntu-latest</option>
-        <option value="windows-latest">windows-latest</option>
-        <option value="macos-latest">macos-latest</option>
-    </select>
+        const onPush = document.getElementById("onPush");
+        const onPR = document.getElementById("onPR");
+        const onDispatch = document.getElementById("onDispatch");
+        const onSchedule = document.getElementById("onSchedule");
+        const cronWrap = document.getElementById("cronWrap");
+        const cronInput = document.getElementById("cronInput");
 
-    <h4 class="font-inter">Pre-run Steps</h4>
-    <div class="checkbox-group">
-        <label><input type="checkbox" id="stepCheckout" checked> Checkout repo</label>
-        <label><input type="checkbox" id="stepNode"> Setup Node.js (v20)</label>
-        <label><input type="checkbox" id="stepPython"> Setup Python (v3.11)</label>
-    </div>
+        const stepCheckout = document.getElementById("stepCheckout");
+        const stepNode = document.getElementById("stepNode");
+        const nodeVersionInput = document.getElementById("nodeVersionInput");
+        const stepPython = document.getElementById("stepPython");
+        const pythonVersionInput = document.getElementById("pythonVersionInput");
+        const stepGo = document.getElementById("stepGo");
+        const stepRust = document.getElementById("stepRust");
 
-    <h4 class="font-inter">Run Code</h4>
-    <textarea id="codeInput" rows="4">echo "Build started"
-npm test</textarea>
+        const stepArtifact = document.getElementById("stepArtifact");
+        const artWrap = document.getElementById("artWrap");
+        const artPathInput = document.getElementById("artPathInput");
 
-    <div class="button-row">
-        <button id="gen" type="button">Generate YAML</button>
-        <button id="copyBtn" class="secondary" type="button">Copy</button>
-        <button id="dlBtn" class="secondary" type="button">Download</button>
-    </div>
+        const stepsContainer = document.getElementById("stepsContainer");
+        const addStepBtn = document.getElementById("addStepBtn");
+        const codeOutput = document.getElementById("code");
+        const copyBtn = document.getElementById("copyBtn");
+        const dlBtn = document.getElementById("dlBtn");
 
-    <textarea id="code" style="resize:vertical; width:100%; height:320px;" readonly></textarea>
+        // Dynamic run steps storage
+        let customSteps = [
+            { name: "Install & Build", cmd: "echo \"Starting build...\"\nnpm install" },
+            { name: "Run Tests", cmd: "npm test" }
+        ];
 
-    <script src="main.js"></script>
+        function renderSteps() {
+            stepsContainer.innerHTML = "";
+            customSteps.forEach((step, index) => {
+                const box = document.createElement("div");
+                box.className = "step-box";
+                box.innerHTML = `
+                    <div class="step-header">
+                        <input type="text" class="step-name" data-index="${index}" value="${step.name}" placeholder="Step Name (e.g. Test)">
+                        <button type="button" class="btn-del" data-index="${index}">✕</button>
+                    </div>
+                    <textarea class="step-cmd" data-index="${index}" rows="3" placeholder="Command(s) to run">${step.cmd}</textarea>
+                `;
+                stepsContainer.appendChild(box);
+            });
+
+            // Bind listeners for newly rendered step inputs
+            document.querySelectorAll(".step-name").forEach(input => {
+                input.addEventListener("input", (e) => {
+                    customSteps[e.target.dataset.index].name = e.target.value;
+                    update();
+                });
+            });
+
+            document.querySelectorAll(".step-cmd").forEach(textarea => {
+                textarea.addEventListener("input", (e) => {
+                    customSteps[e.target.dataset.index].cmd = e.target.value;
+                    update();
+                });
+            });
+
+            document.querySelectorAll(".btn-del").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    customSteps.splice(e.target.dataset.index, 1);
+                    renderSteps();
+                    update();
+                });
+            });
+        }
+
+        addStepBtn.addEventListener("click", () => {
+            customSteps.push({ name: `Step ${customSteps.length + 1}`, cmd: 'echo "Hello"' });
+            renderSteps();
+            update();
+        });
+
+        function toggleVisibility() {
+            cronWrap.style.display = onSchedule.checked ? "block" : "none";
+            nodeVersionInput.style.display = stepNode.checked ? "inline-block" : "none";
+            pythonVersionInput.style.display = stepPython.checked ? "inline-block" : "none";
+            artWrap.style.display = stepArtifact.checked ? "block" : "none";
+        }
+
+        function update() {
+            toggleVisibility();
+
+            const name = nameInput.value.trim() || "CI";
+            const branch = branchInput.value.trim() || "main";
+            const os = osSelect.value;
+
+            let triggers = [];
+            if (onPush.checked) triggers.push(`  push:\n    branches: [ ${branch} ]`);
+            if (onPR.checked) triggers.push(`  pull_request:\n    branches: [ ${branch} ]`);
+            if (onDispatch.checked) triggers.push(`  workflow_dispatch:`);
+            if (onSchedule.checked) {
+                const cron = cronInput.value.trim() || "0 0 * * *";
+                triggers.push(`  schedule:\n    - cron: '${cron}'`);
+            }
+
+            let steps = [];
+            if (stepCheckout.checked) {
+                steps.push(`      - name: Checkout\n        uses: actions/checkout@v4`);
+            }
+            if (stepNode.checked) {
+                const nodeVer = nodeVersionInput.value.trim() || "20";
+                steps.push(`      - name: Setup Node\n        uses: actions/setup-node@v4\n        with:\n          node-version: ${nodeVer}`);
+            }
+            if (stepPython.checked) {
+                const pyVer = pythonVersionInput.value.trim() || "3.11";
+                steps.push(`      - name: Setup Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: '${pyVer}'`);
+            }
+            if (stepGo.checked) {
+                steps.push(`      - name: Setup Go\n        uses: actions/setup-go@v5\n        with:\n          go-version: 'stable'`);
+            }
+            if (stepRust.checked) {
+                steps.push(`      - name: Setup Rust\n        uses: dtolnay/rust-toolchain@stable`);
+            }
+
+            // Append each custom step
+            customSteps.forEach(step => {
+                const cmd = step.cmd.trim();
+                if (!cmd) return;
+
+                const stepName = step.name.trim() ? step.name.trim() : "Run Script";
+                const lines = cmd.split("\n");
+
+                if (lines.length === 1) {
+                    steps.push(`      - name: ${stepName}\n        run: ${lines[0]}`);
+                } else {
+                    const formatted = lines.map(line => `          ${line}`).join("\n");
+                    steps.push(`      - name: ${stepName}\n        run: |\n${formatted}`);
+                }
+            });
+
+            if (stepArtifact.checked) {
+                const artPath = artPathInput.value.trim() || "dist";
+                steps.push(`      - name: Upload artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: build-artifact\n          path: ${artPath}`);
+            }
+
+            codeOutput.value = `name: ${name}
+
+on:
+${triggers.length ? triggers.join("\n") : "  workflow_dispatch:"}
+
+jobs:
+  run:
+    runs-on: ${os}
+    steps:
+${steps.join("\n\n")}
+`;
+        }
+
+        // Event listeners
+        [
+            nameInput, branchInput, osSelect,
+            onPush, onPR, onDispatch, onSchedule, cronInput,
+            stepCheckout, stepNode, nodeVersionInput, stepPython, pythonVersionInput, stepGo, stepRust,
+            stepArtifact, artPathInput
+        ].forEach(el => {
+            el.addEventListener("input", update);
+            el.addEventListener("change", update);
+        });
+
+        document.getElementById("gen").addEventListener("click", update);
+
+        copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(codeOutput.value);
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => { copyBtn.textContent = "Copy"; }, 1200);
+        });
+
+        dlBtn.addEventListener("click", () => {
+            const rawName = nameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-") || "ci";
+            const blob = new Blob([codeOutput.value], { type: "text/yaml" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${rawName}.yml`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        // Initialize
+        renderSteps();
+        update();
+    </script>
 </body>
 </html>
