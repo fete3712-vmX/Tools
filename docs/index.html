@@ -6,23 +6,21 @@
     <title>xTymezz's Tools</title>
     <meta name="description" content="Free, lightweight, client-side developer utilities.">
 
-    <!-- Open Graph for Discord/Twitter previews -->
     <meta property="og:title" content="xTymezz's Tools">
     <meta property="og:description" content="Free, client-side web utilities for developers.">
     <meta property="og:type" content="website">
-    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
-            async src="//gc.zgo.at/count.js"></script>
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#09090b">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/logo-192.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="./icons/logo-128.png" />
+    <link rel="icon" type="image/png" href="./icons/logo-192.png" />
 
     <style>
         * {
@@ -94,6 +92,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             background-color: #222222;
             border: 1px solid #333333;
             padding: 16px 20px;
@@ -109,6 +108,13 @@
             background-color: #2a2a2a;
             border-color: #555555;
             transform: translateY(-2px);
+        }
+
+        .tool-card .tool-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .tool-card .arrow {
@@ -128,7 +134,6 @@
             background: rgba(112, 176, 255, 0.12);
             padding: 2px 6px;
             border-radius: 4px;
-            margin-left: 8px;
             vertical-align: middle;
         }
     </style>
@@ -151,45 +156,44 @@
             </a>
 
             <a href="QRGen" class="tool-card">
-                <span>Live QR Code Generator
-                <span class="badge-fixed">Requires Network!</span>
+                <span>Live QR Code Generator</span>
+                <span class="tool-meta">
+                    <span class="badge-fixed">Requires Network!</span>
+                    <span class="arrow">&rarr;</span>
                 </span>
-                <span class="arrow">&rarr;</span>
             </a>
 
             <a href="AudioCompressor" class="tool-card">
-                <span>
-                    Audio Compressor
+                <span>Audio Compressor</span>
+                <span class="tool-meta">
                     <span class="badge-fixed">Requires Network!</span>
+                    <span class="arrow">&rarr;</span>
                 </span>
-                <span class="arrow">&rarr;</span>
             </a>
 
             <a href="CORSPlayground" class="tool-card">
-                <span>CORS Playground
-                <span class="badge-fixed">Requires Network!</span>
+                <span>CORS Playground</span>
+                <span class="tool-meta">
+                    <span class="badge-fixed">Requires Network!</span>
+                    <span class="arrow">&rarr;</span>
                 </span>
-                <span class="arrow">&rarr;</span>
             </a>
 
-            
             <a href="GeminiAIPlayground" class="tool-card">
-                <span>Gemini AI Playground
-                <span class="badge-fixed">Requires Network!</span>
+                <span>Gemini AI Playground</span>
+                <span class="tool-meta">
+                    <span class="badge-fixed">Requires Network!</span>
+                    <span class="arrow">&rarr;</span>
                 </span>
-                <span class="arrow">&rarr;</span>
             </a>
 
             <a href="ImageCompressor" class="tool-card">
-                <span>Image Compressor
-                </span>
+                <span>Image Compressor</span>
                 <span class="arrow">&rarr;</span>
             </a>
 
             <a href="FilesInOneFile" class="tool-card">
-                <span>Files In One File
-                
-                </span>
+                <span>Files In One File</span>
                 <span class="arrow">&rarr;</span>
             </a>
 
@@ -198,7 +202,6 @@
                 <span class="arrow">&rarr;</span>
             </a>
 
-            
             <a href="HashGenerator" class="tool-card">
                 <span>Hash Generator</span>
                 <span class="arrow">&rarr;</span>
@@ -217,13 +220,13 @@
     </div>
 
     <script>
-          if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                            .then(() => console.log('Service Worker Registered'))
-                                    .catch((err) => console.error('Service Worker Error:', err));
-                                        });
-                                          }
-                                          </script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('Service Worker Registered'))
+                    .catch((err) => console.error('Service Worker Error:', err));
+            });
+        }
+    </script>
 </body>
 </html>
