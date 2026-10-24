@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="icon" type="image/png" href="./icons/logo-128.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script data-goatcounter="https://fete3712-vmx.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: rgb(27, 27, 27);
+        }
+
+        h2 {
+            color: rgb(122, 122, 122);
+        }
+
+        .silkscreen-regular {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .silkscreen-bold {
+            font-family: "Silkscreen", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        #main {
+            border: 5px solid gray;
+            border-radius: 5px;
+            width: 50vw;
+            height: 80vh;
+            background: gray;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input[type="file"] {
+            font-family: "Silkscreen", sans-serif;
+            font-size: 0.85rem;
+        }
+
+        #status {
+            color: #1b1b1b;
+            margin-top: 10px;
+            display: block;
+            font-size: 0.85rem;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #1b1b1b;
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #444;
+            font-family: "Silkscreen", sans-serif;
+            font-size: 0.85rem;
+            width: fit-content;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: #333;
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            overflow: hidden;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.1);
+            border: 2px dashed #444;
+            border-radius: 4px;
+        }
+
+        #out {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h2 class="silkscreen-bold">GIF to APNG</h2>
+    </center>
+    <center>
+        <div id="main">
+            <div class="controls">
+                <span class="silkscreen-regular">File:
+                    <input type="file" id="fileInput" accept="image/gif" />
+                </span>
+
+                <div id="status" class="silkscreen-regular">Choose a GIF to convert.</div>
+
+                <a id="dl" class="download-btn" style="display: none;">Download .APNG</a>
+            </div>
+
+            <div class="preview-container">
+                <img id="out" alt="APNG preview" style="display: none;" />
+            </div>
+        </div>
+    </center>
+
+    <script>
+        const fileInput = document.getElementById("fileInput");
+        const statusText = document.getElementById("status");
+        const dlLink = document.getElementById("dl");
+        const outImg = document.getElementById("out");
+
+        let prevUrl = null;
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+            return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+        }
+
+        async function loadDependency(url) {
+            if (document.querySelector(`script[src="${url}"]`)) return;
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = url;
+                s.onload = resolve;
+                s.onerror = () => reject(new Error(`Failed to load ${url}`));
+                document.head.appendChild(s);
+            });
+        }
+
+        async function ensureApngLibraries() {
+            if (typeof pako === 'undefined') {
+                await loadDependency('https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js');
+            }
+            if (typeof UPNG === 'undefined') {
+                await loadDependency('https://cdnjs.cloudflare.com/ajax/libs/upng-js/2.1.0/UPNG.min.js');
+            }
+        }
+
+        async function convertGifToApng(gifFile) {
+            if (!('ImageDecoder' in window)) {
+                throw new Error("Browser doesn't support WebCodecs ImageDecoder.");
+            }
+
+            statusText.textContent = "Loading dependencies...";
+            await ensureApngLibraries();
+
+            statusText.textContent = "Reading GIF...";
+            const arrayBuffer = await gifFile.arrayBuffer();
+
+            const decoder = new ImageDecoder({
+                data: arrayBuffer,
+                type: 'image/gif'
+            });
+
+            await decoder.tracks.ready;
+            const frameCount = decoder.tracks.selectedTrack.frameCount;
+
+            let canvas, ctx, width, height;
+            const frameBuffers = [];
+            const delays = [];
+
+            for (let i = 0; i < frameCount; i++) {
+                statusText.textContent = `Extracting frames (${i + 1}/${frameCount})...`;
+                const { image } = await decoder.decode({ frameIndex: i });
+
+                if (i === 0) {
+                    width = image.displayWidth;
+                    height = image.displayHeight;
+                    canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx = canvas.getContext('2d', { willReadFrequently: true });
+                }
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(image, 0, 0);
+
+                const imgData = ctx.getImageData(0, 0, width, height);
+                frameBuffers.push(imgData.data.buffer.slice(0));
+
+                const delayMs = Math.round((image.duration || 100000) / 1000);
+                delays.push(delayMs <= 10 ? 100 : delayMs);
+
+                image.close();
+            }
+
+            statusText.textContent = "Encoding APNG...";
+            // Delay for one frame render tick so status displays
+            await new Promise((r) => setTimeout(r, 10));
+
+            // UPNG.encode(frames, width, height, colors (0 = lossless), delays)
+            const apngArrayBuffer = UPNG.encode(frameBuffers, width, height, 0, delays);
+            return new Blob([apngArrayBuffer], { type: 'image/apng' });
+        }
+
+        fileInput.addEventListener("change", async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            dlLink.style.display = "none";
+            outImg.style.display = "none";
+
+            try {
+                const apngBlob = await convertGifToApng(file);
+
+                if (prevUrl) URL.revokeObjectURL(prevUrl);
+                const apngUrl = URL.createObjectURL(apngBlob);
+                prevUrl = apngUrl;
+
+                const baseName = file.name.replace(/\.[^/.]+$/, "");
+                dlLink.href = apngUrl;
+                dlLink.download = `${baseName}.apng`;
+                dlLink.style.display = "inline-block";
+
+                outImg.src = apngUrl;
+                outImg.style.display = "block";
+
+                const originalSize = file.size;
+                const newSize = apngBlob.size;
+                const percent = Math.round((1 - newSize / originalSize) * 100);
+                const sign = percent >= 0 ? `-${percent}%` : `+${Math.abs(percent)}%`;
+
+                statusText.textContent = `Done! ${formatSize(originalSize)} -> ${formatSize(newSize)} (${sign})`;
+            } catch (err) {
+                statusText.textContent = "Error processing file.";
+                alert("Error: " + (err.message || err));
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+
+</html>
